@@ -83,28 +83,6 @@ def generate_launch_description():
                         {'enable_odometry': LaunchConfiguration('enable_odometry')}]
         )
     )
-    
-    ld.add_action(
-        Node(
-            package='osr_control',
-            executable='status_light',
-            name='status_light',
-            output='screen',
-            emulate_tty=True,
-            respawn=True,
-        )
-    )
-
-    ld.add_action(
-        Node(
-            package='osr_control',
-            executable='chassis_fan',
-            name='chassis_fan',
-            output='screen',
-            emulate_tty=True,
-            respawn=True,
-        )
-    )
 
     ld.add_action(
         Node(
