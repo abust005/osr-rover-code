@@ -137,6 +137,9 @@ If it asks you to reboot, answer 'yes'. Then connect to the Raspberry Pi again o
 
 More on raspi-config [here](https://www.raspberrypi.com/documentation/computers/configuration.html).
 
+From here, enable **I2C** Fast Mode; this runs the **I2C** bus at 400kHz instead of the standard 100kHz. Instructions on doing that are described in detail [here](https://www.raspberrypi-spy.co.uk/2018/02/change-raspberry-pi-i2c-bus-speed/)
+
+
 Next, we'll add udev rules to add a symbolic link (symlink) to the serial and i2c devices and configure their permissions:
 
 ```bash
