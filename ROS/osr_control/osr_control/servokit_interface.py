@@ -1,12 +1,11 @@
 import rclpy
 from rclpy.node import Node
-from rclpy.parameter import Parameter
 
 # project libraries
 from adafruit_servokit import ServoKit
 
 # message imports
-from osr_interfaces.msg import CommandServoKit, Status
+from osr_interfaces.msg import CommandServoKit
 
 class ServokitInterface(Node):
     def __init__(self):
@@ -29,6 +28,10 @@ class ServokitInterface(Node):
 
         channel = cmd.servo_id
 
+        if channel < 0 or channel > 15:
+            self.log.error(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)
+            return
+
         # ONLY update hardware config if the setup flag is true
         if cmd.setup:
             self.log.info(f"Configuring hardware for channel {channel}")
@@ -40,7 +43,7 @@ class ServokitInterface(Node):
             return
 
         # LEAN path for high-frequency movement commands
-        if cmd.new_angle is not None:
+        if cmd.new_angle != 0:
             try:
                 # Use a float cast for angle to ensure precision
                 self.kit.servo[channel].angle = float(cmd.new_angle)
@@ -49,6 +52,7 @@ class ServokitInterface(Node):
                 self.log.warn(f"Angle {cmd.new_angle} out of range for channel {channel}", throttle_duration_sec=1)
             except Exception as e:
                 self.log.error(f"Servo Error: {e}")
+
 def main(args=None):
     rclpy.init(args=args)
 
