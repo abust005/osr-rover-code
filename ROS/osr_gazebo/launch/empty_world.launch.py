@@ -15,9 +15,12 @@ import xacro
 
 def generate_launch_description():
     gazebo = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory('gazebo_ros'), 'launch'), '/gazebo.launch.py']),
-             )
+        PythonLaunchDescriptionSource([os.path.join(
+            get_package_share_directory('ros_gz_sim'), 'launch'), '/gz_sim.launch.py']),
+        launch_arguments={
+            'gz_args': '-r sensors_demo.sdf' # -r starts the sim immediately; empty.sdf has basic plugins
+        }.items(),
+)
 
     osr_urdf_path = os.path.join(
         get_package_share_directory('osr_gazebo'))
@@ -43,11 +46,17 @@ def generate_launch_description():
         output='screen'
     )
     
-    spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
+    spawn_entity = Node(package='ros_gz_sim', executable='create',
                         arguments=['-topic', 'robot_description',
-                                   '-entity', 'rover'],
+                                   '-name', 'rover'],
                         output='screen')
 
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=['/lidar@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan'],
+        output='screen'
+    )
 
     # joint_state_controller
     load_joint_state_controller = ExecuteProcess(
@@ -66,7 +75,6 @@ def generate_launch_description():
         cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'servo_controller'],
         output='screen'
     )
-    
     return LaunchDescription([
     	controller_spawn,
         RegisterEventHandler(
