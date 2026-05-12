@@ -497,14 +497,20 @@
     <joint name="lidar_joint" type="fixed">
             <parent link="base_link"/>
             <child link="lidar_link"/>
-            <origin xyz="0.2 0 0.1" rpy="0 0 0"/>
+            <origin xyz="0.05 0 0.08" rpy="0 0 0"/>
         </joint>
 
     <link name="lidar_link">
         <visual>
-            <geometry><cylinder radius="0.05" length="0.05"/></geometry>
+            <geometry><cylinder radius="0.081" length="0.04"/></geometry>
         </visual>
-        <sensor name="lidar" type="gpu_ray">
+
+    </link>
+
+    <gazebo reference="lidar_link">
+        <sensor name="lidar" type="gpu_lidar">
+            <gz_frame_id>lidar_link</gz_frame_id>
+            <topic>/lidar</topic>
             <pose>0 0 0 0 0 0</pose>
             <always_on>true</always_on>
             <visualize>true</visualize>
@@ -512,19 +518,19 @@
             <ray>
             <scan>
                 <horizontal>
-                <samples>360</samples>
+                <samples>32000</samples>
                 <resolution>1</resolution>
                 <min_angle>-3.14</min_angle>
                 <max_angle>3.14</max_angle>
                 </horizontal>
             </scan>
             <range>
-                <min>0.1</min>
-                <max>10.0</max>
+                <min>0.05</min>
+                <max>18.0</max>
             </range>
             </ray>
         </sensor>
-    </link>
+    </gazebo>
 
     <xacro:insert_velocity_transmission name="rear_wheel_joint_right"/>
     <xacro:insert_velocity_transmission name="rear_wheel_joint_left"/>
