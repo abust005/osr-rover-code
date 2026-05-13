@@ -8,3 +8,7 @@ ROS/osr_bringup/config/*_mod.yaml
 log/
 install/
 build/
+*CMakeFiles/
+*build/
+*install/
+*log/

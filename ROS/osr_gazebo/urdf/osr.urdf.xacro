@@ -494,6 +494,44 @@
 
     <link name="imu_link"></link>
 
+    <joint name="lidar_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="lidar_link"/>
+            <origin xyz="0.05 0 0.08" rpy="0 0 0"/>
+        </joint>
+
+    <link name="lidar_link">
+        <visual>
+            <geometry><cylinder radius="0.081" length="0.04"/></geometry>
+        </visual>
+
+    </link>
+
+    <gazebo reference="lidar_link">
+        <sensor name="lidar" type="gpu_lidar">
+            <gz_frame_id>lidar_link</gz_frame_id>
+            <topic>/lidar</topic>
+            <pose>0 0 0 0 0 0</pose>
+            <always_on>true</always_on>
+            <visualize>true</visualize>
+            <update_rate>10</update_rate>
+            <ray>
+            <scan>
+                <horizontal>
+                <samples>32000</samples>
+                <resolution>1</resolution>
+                <min_angle>-3.14</min_angle>
+                <max_angle>3.14</max_angle>
+                </horizontal>
+            </scan>
+            <range>
+                <min>0.05</min>
+                <max>18.0</max>
+            </range>
+            </ray>
+        </sensor>
+    </gazebo>
+
     <xacro:insert_velocity_transmission name="rear_wheel_joint_right"/>
     <xacro:insert_velocity_transmission name="rear_wheel_joint_left"/>
     <xacro:insert_velocity_transmission name="middle_wheel_joint_right"/>

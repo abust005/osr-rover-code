@@ -9,7 +9,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
   # Set the path to this package.
-  pkg_share = FindPackageShare(package=' osr_gazebo').find('osr_gazebo')
+  pkg_share = FindPackageShare(package='osr_gazebo').find('osr_gazebo')
 
   # Set the path to the RViz configuration settings
   default_rviz_config_path = os.path.join(pkg_share, 'rviz/rviz_settings.rviz')
