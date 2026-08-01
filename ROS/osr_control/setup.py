@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'rover = osr_control.rover:main',
             'roboclaw_wrapper = osr_control.roboclaw_wrapper:main',
+            'servokit_interface = osr_control.servokit_interface:main',
             'servo_control = osr_control.servo_control:main',
             'ina260 = osr_control.ina_260_pub:main',
             'rc_joy = osr_control.rc_joy:main',
