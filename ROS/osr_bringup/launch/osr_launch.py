@@ -30,17 +30,17 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     
-    # ld.add_action(
-    #     Node(
-    #         package='osr_control',
-    #         executable='roboclaw_wrapper',
-    #         name='roboclaw_wrapper',
-    #         output='screen',
-    #         emulate_tty=True,
-    #         respawn=True,
-    #         parameters=[roboclaw_params]
-    #     )
-    # )
+    ld.add_action(
+        Node(
+            package='osr_control',
+            executable='roboclaw_wrapper',
+            name='roboclaw_wrapper',
+            output='screen',
+            emulate_tty=True,
+            respawn=True,
+            parameters=[roboclaw_params]
+        )
+    )
     # ld.add_action(
     #     DeclareLaunchArgument('enable_odometry', default_value='false')
     # )
@@ -119,7 +119,7 @@ def generate_launch_description():
             )
         )
     )
-    
+
     ld.add_action(
         DeclareLaunchArgument('enable_odometry', default_value='false')
     )
