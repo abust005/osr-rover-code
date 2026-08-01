@@ -76,7 +76,7 @@ class RcJoy(Node):
   def update_control_signal(self):
 
     if not(self.crsf_port.is_paired()):
-      self.log.error("CRSF port not available", throttle_duration_sec=5)
+      self.log.error("Transmitter not paired", throttle_duration_sec=5)
       return
 
     self.last_channel_rx = np.array(self.crsf_port.get_channel_state())
