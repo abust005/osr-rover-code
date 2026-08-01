@@ -1,0 +1,13 @@
+rc_joy:
+  ros__parameters:
+    serial_port: "/dev/ttyUSB0"
+    enable_channel: 5 
+    velocity:
+      channel: 3
+      range: [174, 992, 1811]
+      scale: 0.4
+    rotation:
+      channel: 2
+      range: [174, 992, 1811]
+      scale: -1.25
+    turbo_channel: 9

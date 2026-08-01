@@ -29,7 +29,13 @@ install(DIRECTORY
   urdf
   meshes
   rviz
-  DESTINATION share/${PROJECT_NAME}/
+  worlds
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(FILES
+  worlds/osr_world.sdf
+  DESTINATION share/${PROJECT_NAME}
 )
 
 add_executable(osr_controller src/osr_controller.cpp)
