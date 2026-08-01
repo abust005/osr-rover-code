@@ -83,23 +83,43 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             respawn=True,
-            parameters=[roboclaw_params]
+            parameters=[rc_params]
         )
     )
     ld.add_action(
         DeclareLaunchArgument('enable_odometry', default_value='false')
     )
+
+    servokit_interface_node = Node(
+        package='osr_control',
+        executable='servokit_interface',
+        name='servokit_interface',
+        output='screen',
+        emulate_tty=True,
+        respawn=True
+    )
+
+    servo_control_node = Node(
+        package='osr_control',
+        executable='servo_control',
+        name='servo_wrapper',
+        output='screen',
+        emulate_tty=True,
+        respawn=True,
+        parameters=[{'centered_pulse_widths': [148, 155, 148, 158]}]
+    )
+
+    ld.add_action(servokit_interface_node)
+
     ld.add_action(
-        Node(
-            package='osr_control',
-            executable='servo_control',
-            name='servo_wrapper',
-            output='screen',
-            emulate_tty=True,
-            respawn=True,
-            parameters=[{'centered_pulse_widths': [165, 134, 135, 160]}]  # pulse width where the corner motors are in their default position, see rover_bringup.md.
+        RegisterEventHandler(
+            OnProcessStart(
+                target_action=servokit_interface_node,
+                on_start=[servo_control_node]
+            )
         )
     )
+    
     ld.add_action(
         DeclareLaunchArgument('enable_odometry', default_value='false')
     )
