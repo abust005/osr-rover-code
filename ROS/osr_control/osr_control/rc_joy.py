@@ -4,7 +4,7 @@ from rclpy.node import Node
 from rcl_interfaces.msg import SetParametersResult
 
 from geometry_msgs.msg import Twist, TwistWithCovariance
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, Joy
 from osr_interfaces.msg import CommandDrive, Status
 
 import numpy as np
@@ -34,6 +34,10 @@ class RcJoy(Node):
       ]
     )
 
+    self.velocity_channel = self.get_parameter('velocity.channel').get_parameter_value().integer_value
+    self.rotation_channel = self.get_parameter('rotation.channel').get_parameter_value().integer_value
+    self.enable_channel = self.get_parameter('enable_channel').get_parameter_value().integer_value
+
     self.velocity_range = list(self.get_parameter('velocity.range').get_parameter_value().integer_array_value)
     self.rotation_range = list(self.get_parameter('rotation.range').get_parameter_value().integer_array_value)
     
@@ -58,7 +62,8 @@ class RcJoy(Node):
     self.control_update_rate = 0.01 # seconds, 100Hz
     self.fast_timer = self.create_timer(self.control_update_rate, self.update_control_signal)
 
-    self.pub = self.create_publisher(Twist, "/cmd_vel", 1)
+    self.joy_pub = self.create_publisher(Joy, "/joy", 1)
+    self.twist_pub = self.create_publisher(Twist, "/cmd_vel", 1)
 
     self.last_channel_rx = []
 
@@ -81,8 +86,9 @@ class RcJoy(Node):
 
     self.last_channel_rx = np.array(self.crsf_port.get_channel_state())
 
-    velocity_value = self.last_channel_rx[self.get_parameter('velocity.channel').get_parameter_value().integer_value - 1]
-    rotation_value = self.last_channel_rx[self.get_parameter('rotation.channel').get_parameter_value().integer_value - 1]
+    velocity_value = self.last_channel_rx[self.velocity_channel - 1]
+    rotation_value = self.last_channel_rx[self.rotation_channel - 1]
+    enable = 1 if (self.last_channel_rx[self.enable_channel - 1] > 0) else 0
 
     if velocity_value < (self.velocity_range[1] + self.vel_deadzone) and \
         velocity_value > (self.velocity_range[1] - self.vel_deadzone):
@@ -104,15 +110,21 @@ class RcJoy(Node):
       rotation_value = pow(abs(rotation_value), self.exponential_scale) * (1 if rotation_value >= 0 else -1);
       rotation_value *= self.get_parameter('rotation.scale').get_parameter_value().double_value
 
-    msg = Twist()
-    msg.linear.x = velocity_value
-    msg.linear.y = 0.0
-    msg.linear.z = 0.0
-    msg.angular.x = 0.0
-    msg.angular.y = 0.0
-    msg.angular.z = rotation_value
+    twist_msg = Twist()
+    twist_msg.linear.x = velocity_value
+    twist_msg.linear.y = 0.0
+    twist_msg.linear.z = 0.0
+    twist_msg.angular.x = 0.0
+    twist_msg.angular.y = 0.0
+    twist_msg.angular.z = rotation_value
 
-    self.pub.publish(msg)
+    self.twist_pub.publish(twist_msg)
+
+    joy_msg = Joy()
+    joy_msg.buttons[1] = enable
+
+    self.joy_pub.publish(joy_msg)
+
     # Turbo is applied as a ramp based on the axis value
     # turbo_ramp = turbo_scale_map.at(fieldname) - scale_map.at(fieldname);
     # turbo_gain = (joy_msg->axes[turbo_axis] - 1) * -0.5 * turbo_ramp;
