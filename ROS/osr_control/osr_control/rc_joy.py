@@ -86,8 +86,6 @@ class RcJoy(Node):
 
     self.last_channel_rx = np.array(self.crsf_port.get_channel_state())
 
-    self.log.info(f'Last channel RX: {self.last_channel_rx}')
-
     velocity_value = self.last_channel_rx[self.velocity_channel - 1]
     rotation_value = self.last_channel_rx[self.rotation_channel - 1]
     enable = 1 if (self.last_channel_rx[self.enable_channel - 1] > 1791) else 0
@@ -127,8 +125,6 @@ class RcJoy(Node):
     joy_msg.buttons[1] = enable
 
     self.joy_pub.publish(joy_msg)
-
-    self.log.info(f'Current joy buttons: {joy_msg.buttons}')
 
     # Turbo is applied as a ramp based on the axis value
     # turbo_ramp = turbo_scale_map.at(fieldname) - scale_map.at(fieldname);
