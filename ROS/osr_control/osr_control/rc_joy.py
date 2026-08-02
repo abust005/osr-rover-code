@@ -90,6 +90,8 @@ class RcJoy(Node):
     rotation_value = self.last_channel_rx[self.rotation_channel - 1]
     enable = 1 if (self.last_channel_rx[self.enable_channel - 1] > 200) else 0
 
+    self.log.info(f'CH5: {self.last_channel_rx[self.enable_channel - 1]}', throttle_duration_sec=5)
+
     if velocity_value < (self.velocity_range[1] + self.vel_deadzone) and \
         velocity_value > (self.velocity_range[1] - self.vel_deadzone):
       
