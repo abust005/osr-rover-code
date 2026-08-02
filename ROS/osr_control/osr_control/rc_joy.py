@@ -90,7 +90,7 @@ class RcJoy(Node):
 
     velocity_value = self.last_channel_rx[self.velocity_channel - 1]
     rotation_value = self.last_channel_rx[self.rotation_channel - 1]
-    enable = 1 if (self.last_channel_rx[self.enable_channel - 1] > 0) else 0
+    enable = 1 if (self.last_channel_rx[self.enable_channel - 1] > 1791) else 0
 
     if velocity_value < (self.velocity_range[1] + self.vel_deadzone) and \
         velocity_value > (self.velocity_range[1] - self.vel_deadzone):
