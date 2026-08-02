@@ -121,6 +121,7 @@ class RcJoy(Node):
     self.twist_pub.publish(twist_msg)
 
     joy_msg = Joy()
+    joy_msg.buttons = [0] * 32
     joy_msg.buttons[1] = enable
 
     self.joy_pub.publish(joy_msg)
