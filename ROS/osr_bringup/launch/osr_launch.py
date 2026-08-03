@@ -145,8 +145,8 @@ def generate_launch_description():
                 {"scale_angular.pitch": 0.25},  # scale to apply to angular speed, in rad/s: scale_linear / min_radius(=0.45m)
                 {"scale_angular_turbo.yaw": 3.95},  # scale to apply to angular speed, in rad/s: scale_linear_turbo / min_radius
                 {"scale_linear_turbo.x": 1.78},  # scale to apply to linear speed, in m/s
-                # {"enable_button": 4},  # which button to press to enable movement
-                {"enable_button": 0},  # which button to press to enable movement
+                {"enable_button": 4},  # which button to press to enable movement
+                # {"enable_button": 0},  # which button to press to enable movement
                 # {"enable_turbo_button": 5}  # -1 to disable turbo
                 {"enable_turbo_button": -1}  # -1 to disable turbo
             ],
