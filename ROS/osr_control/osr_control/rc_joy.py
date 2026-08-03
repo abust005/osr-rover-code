@@ -17,7 +17,7 @@ from osr_interfaces.msg import CRSFChannels
 
 class RCJoyNode(Node):
     def __init__(self):
-        super().__init__('rc_joy_node')
+        super().__init__('rc_joy')
 
 
         self.declare_parameters(
