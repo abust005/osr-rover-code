@@ -136,9 +136,9 @@ def generate_launch_description():
                 # {"scale_linear.x": 0.4},  # scale to apply to drive speed, in m/s: drive_motor_rpm * 2pi / 60 * wheel radius * slowdown_factor
                 {"scale_linear.x": -0.4},  # scale to apply to drive speed, in m/s: drive_motor_rpm * 2pi / 60 * wheel radius * slowdown_factor
                 # {"axis_linear.x": 4},
-                {"axis_linear.x": 3},
+                {"axis_linear.x": 4},
                 # {"axis_angular.yaw": 0},  # which joystick axis to use for driving
-                {"axis_angular.yaw": 2},  # which joystick axis to use for driving
+                {"axis_angular.yaw": 1},  # which joystick axis to use for driving
                 # {"scale_angular.yaw": 1.25},  # scale to apply to angular speed, in rad/s: scale_linear / min_radius(=0.45m)
                 {"axis_angular.pitch": 0},  # axis to use for in-place rotation
                 {"scale_angular.yaw": -1.25},  # scale to apply to angular speed, in rad/s: scale_linear / min_radius(=0.45m)
@@ -148,7 +148,7 @@ def generate_launch_description():
                 {"enable_button": 4},  # which button to press to enable movement
                 # {"enable_button": 0},  # which button to press to enable movement
                 # {"enable_turbo_button": 5}  # -1 to disable turbo
-                {"enable_turbo_button": -1}  # -1 to disable turbo
+                {"enable_turbo_button": 8}  # -1 to disable turbo
             ],
             remappings=[
                 ('/cmd_vel', '/cmd_vel_intuitive')
