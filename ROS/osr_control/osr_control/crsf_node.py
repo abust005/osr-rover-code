@@ -36,10 +36,11 @@ class CRSF_RX(Node):
 
     self.crsf_pub = self.create_publisher(CRSFChannels, "/crsf", 1)
 
-    self.crsf_port = crossfire.XCrossfire(self.interface, self.baud_rate)
+    self.crsf_port = None
 
   def setup_crossfire(self):
 
+    self.crsf_port = crossfire.XCrossfire(self.interface, self.baud_rate)
     opened_port = self.crsf_port.open_port()
 
     if not(opened_port):
@@ -50,6 +51,9 @@ class CRSF_RX(Node):
     self.setup_port_timer.cancel()
 
   def update_control_signal(self):
+
+    if self.crsf_port is None:
+      return
 
     if not(self.crsf_port.is_paired()):
       self.log.error("Transmitter not paired", throttle_duration_sec=5)
