@@ -36,9 +36,9 @@ class CRSF_RX(Node):
 
     self.crsf_pub = self.create_publisher(CRSFChannels, "/crsf", 1)
 
-  def setup_crossfire(self):
-
     self.crsf_port = crossfire.XCrossfire(self.interface, self.baud_rate)
+
+  def setup_crossfire(self):
 
     opened_port = self.crsf_port.open_port()
 
