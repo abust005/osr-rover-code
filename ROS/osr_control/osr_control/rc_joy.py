@@ -80,7 +80,7 @@ class RCJoyNode(Node):
         return norm
 
     def crsf_callback(self, msg: CRSFChannels):
-        if not msg.channels:
+        if len(msg.channels) == 0:
             return
 
         joy_msg = Joy()
