@@ -32,7 +32,7 @@ class RCJoyNode(Node):
             ('ch_max', Parameter.Type.INTEGER_ARRAY),
             ('ch_mid', Parameter.Type.INTEGER_ARRAY),
             ('ch_min', Parameter.Type.INTEGER_ARRAY),
-            ('ch_enable', Parameter.Type.BOOL_ARRAY),
+            ('ch_enable', Parameter.Type.INTEGER_ARRAY),
             ('ch_type', Parameter.Type.INTEGER_ARRAY)
         ]
         )
@@ -49,7 +49,7 @@ class RCJoyNode(Node):
         self.ch_min = self.get_parameter_value('ch_min').integer_array_value
         self.ch_mid = self.get_parameter_value('ch_mid').integer_array_value
         self.ch_max = self.get_parameter_value('ch_max').integer_array_value
-        self.ch_enable = self.get_parameter_value('ch_enable').bool_array_value
+        self.ch_enable = self.get_parameter_value('ch_enable').integer_array_value
         self.ch_type = self.get_parameter_value('ch_type').integer_array_value
         self.deadzone = self.get_parameter('deadzone').double_value
 
@@ -95,7 +95,7 @@ class RCJoyNode(Node):
             ch_val = msg.channels[ch]
             ch_mid = self.ch_mid[ch]
 
-            if not(self.ch_enable[ch]):
+            if not(bool(self.ch_enable[ch])):
                 continue
 
             if self.ch_type[ch] == 0:
