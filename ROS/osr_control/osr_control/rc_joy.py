@@ -44,13 +44,13 @@ class RCJoyNode(Node):
         self.declare_parameter('deadzone', 0.02)
 
         # --- Read Parameters ---
-        self.frame_id = self.get_parameter('frame_id').value
-        self.ch_min = self.get_parameter_value('ch_min').integer_array_value
-        self.ch_mid = self.get_parameter_value('ch_mid').integer_array_value
-        self.ch_max = self.get_parameter_value('ch_max').integer_array_value
-        self.ch_enable = self.get_parameter_value('ch_enable').integer_array_value
-        self.ch_type = self.get_parameter_value('ch_type').integer_array_value
-        self.deadzone = self.get_parameter('deadzone').double_value
+        self.frame_id = self.get_parameter('frame_id').get_parameter_value().string_value
+        self.ch_min = self.get_parameter('ch_min').get_parameter_value().integer_array_value
+        self.ch_mid = self.get_parameter('ch_mid').get_parameter_value().integer_array_value
+        self.ch_max = self.get_parameter('ch_max').get_parameter_value().integer_array_value
+        self.ch_enable = self.get_parameter('ch_enable').get_parameter_value().integer_array_value
+        self.ch_type = self.get_parameter('ch_type').get_parameter_value().integer_array_value
+        self.deadzone = self.get_parameter('deadzone').get_parameter_value().double_value
 
         # --- Publishers and Subscribers ---
         self.joy_pub = self.create_publisher(Joy, '/joy', 10)
