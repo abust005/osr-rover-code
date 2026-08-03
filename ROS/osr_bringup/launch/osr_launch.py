@@ -27,6 +27,12 @@ def generate_launch_description():
         'config',
         'rc_params.yaml'
     )
+    crsf_params = os.path.join(
+        get_package_share_directory('osr_bringup'),
+        'config',
+        'crsf_params.yaml'
+    )
+
 
     ld = LaunchDescription()
     
@@ -74,6 +80,19 @@ def generate_launch_description():
     #                      'publish_transform': LaunchConfiguration('publish_transform')}]
     #     )
     # )
+
+
+    ld.add_action(
+        Node(
+            package='osr_control',
+            executable='crsf',
+            name='crsf_node',
+            output='screen',
+            emulate_tty=True,
+            respawn=True,
+            parameters=[crsf_params]
+        )
+    )
 
     ld.add_action(
         Node(
