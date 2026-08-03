@@ -44,7 +44,6 @@ class RCJoyNode(Node):
         self.declare_parameter('deadzone', 0.02)
 
         # --- Read Parameters ---
-        joy_topic = self.get_parameter('joy_topic').value
         self.frame_id = self.get_parameter('frame_id').value
         self.ch_min = self.get_parameter_value('ch_min').integer_array_value
         self.ch_mid = self.get_parameter_value('ch_mid').integer_array_value
@@ -62,7 +61,7 @@ class RCJoyNode(Node):
             10
         )
 
-        self.get_logger().info(f"RC Joy node listening on /crsf and publishing to '{joy_topic}'")
+        self.get_logger().info(f"RC Joy node listening on /crsf and publishing to /joy")
 
     def _normalize_axis(self, ch, raw_val: int) -> float:
         """Converts raw PWM/CRSF value (e.g. 988-2012 us) to a [-1.0, 1.0] float range."""
