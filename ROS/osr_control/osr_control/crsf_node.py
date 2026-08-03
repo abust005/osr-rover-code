@@ -58,3 +58,18 @@ class CRSF_RX(Node):
     msg = CRSFChannels()
     msg.channels = self.crsf_port.get_channel_state()
     self.crsf_pub.publish(msg)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = CRSF_RX()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

@@ -30,6 +30,7 @@ setup(
             'servo_control = osr_control.servo_control:main',
             'ina260 = osr_control.ina_260_pub:main',
             'rc_joy = osr_control.rc_joy:main',
+            'crsf = osr_control.crsf_node:main',
             'joy_extras = osr_control.joy_extras:main'
         ],
     },
