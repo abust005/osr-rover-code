@@ -5,143 +5,135 @@ from rcl_interfaces.msg import SetParametersResult
 
 from geometry_msgs.msg import Twist, TwistWithCovariance
 from sensor_msgs.msg import JointState, Joy
-from osr_interfaces.msg import CommandDrive, Status
+from osr_interfaces.msg import CommandDrive, CRSFChannels, Status
 
 import numpy as np
 
-import crossfire
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Joy
+from osr_interfaces.msg import CRSFChannels
 
-class RcJoy(Node):
-  """Node for arbitary radio control using CRSF"""
 
-  def __init__(self):
-    super().__init__("rc_joy")
-    self.log = self.get_logger()
-    self.log.info("Initializing RCJoy Node")
+class RCJoyNode(Node):
+    def __init__(self):
+        super().__init__('rc_joy_node')
 
-    self.declare_parameters(
-      namespace='',
-      parameters=[
-        ('serial_port', Parameter.Type.STRING),
-        ('enable_channel', Parameter.Type.INTEGER),
-        ('velocity.channel', Parameter.Type.INTEGER),
-        ('velocity.range', Parameter.Type.INTEGER_ARRAY),
-        ('velocity.scale', Parameter.Type.DOUBLE),
-        ('rotation.channel', Parameter.Type.INTEGER),
-        ('rotation.range', Parameter.Type.INTEGER_ARRAY),
-        ('rotation.scale', Parameter.Type.DOUBLE),
-        ('turbo_channel', Parameter.Type.INTEGER)
-      ]
-    )
 
-    self.velocity_channel = self.get_parameter('velocity.channel').get_parameter_value().integer_value
-    self.rotation_channel = self.get_parameter('rotation.channel').get_parameter_value().integer_value
-    self.enable_channel = self.get_parameter('enable_channel').get_parameter_value().integer_value
+        self.declare_parameters(
+        namespace='',
+        parameters=[
+            ('enable_channel', Parameter.Type.INTEGER),
+            ('velocity.channel', Parameter.Type.INTEGER),
+            ('velocity.scale', Parameter.Type.DOUBLE),
+            ('rotation.channel', Parameter.Type.INTEGER),
+            ('rotation.scale', Parameter.Type.DOUBLE),
+            ('turbo_channel', Parameter.Type.INTEGER),
+            ('ch_max', Parameter.Type.INTEGER_ARRAY),
+            ('ch_mid', Parameter.Type.INTEGER_ARRAY),
+            ('ch_min', Parameter.Type.INTEGER_ARRAY),
+            ('ch_enable', Parameter.Type.BOOL_ARRAY),
+            ('ch_type', Parameter.Type.INTEGER_ARRAY)
+        ]
+        )
 
-    self.velocity_range = list(self.get_parameter('velocity.range').get_parameter_value().integer_array_value)
-    self.rotation_range = list(self.get_parameter('rotation.range').get_parameter_value().integer_array_value)
-    
-    self.vel_deadzone = (self.velocity_range[2] - self.velocity_range[0]) * 0.1
-    self.rot_deadzone = (self.rotation_range[2] - self.rotation_range[0]) * 0.1
+        # --- Parameters ---
+        self.declare_parameter('frame_id', 'rc_transmitter')
 
-    self.log.info(f"Velocity range: {self.velocity_range}")
+        # Deadzone threshold around center (in normalized range 0.0 - 1.0)
+        self.declare_parameter('deadzone', 0.02)
 
-    self.velocity_transform = lambda x: (x - self.velocity_range[0]) * 2.0 / (self.velocity_range[2] - self.velocity_range[0]) - 1
-    self.rotation_transform = lambda x: (x - self.rotation_range[0]) * 2.0 / (self.rotation_range[2] - self.rotation_range[0]) - 1
-    
-    self.exponential_scale = 1.50
+        # --- Read Parameters ---
+        joy_topic = self.get_parameter('joy_topic').value
+        self.frame_id = self.get_parameter('frame_id').value
+        self.ch_min = self.get_parameter_value('ch_min').integer_array_value
+        self.ch_mid = self.get_parameter_value('ch_mid').integer_array_value
+        self.ch_max = self.get_parameter_value('ch_max').integer_array_value
+        self.ch_enable = self.get_parameter_value('ch_enable').bool_array_value
+        self.ch_type = self.get_parameter_value('ch_type').integer_array_value
+        self.deadzone = self.get_parameter('deadzone').double_value
 
-    self.interface = self.get_parameter('serial_port').get_parameter_value().string_value
-    self.log.info(f"Got parameter serial_port: {self.interface}")
-    self.crsf_port = crossfire.XCrossfire(self.interface)
-    self.opened_port = False
+        # --- Publishers and Subscribers ---
+        self.joy_pub = self.create_publisher(Joy, '/joy', 10)
+        self.crsf_sub = self.create_subscription(
+            CRSFChannels,
+            '/crsf',
+            self.crsf_callback,
+            10
+        )
 
-    self.port_timer_rate = 1 # second, 1Hz
-    self.setup_port_timer = self.create_timer(self.port_timer_rate, self.setup_crossfire)
+        self.get_logger().info(f"RC Joy node listening on /crsf and publishing to '{joy_topic}'")
 
-    self.control_update_rate = 0.01 # seconds, 100Hz
-    self.fast_timer = self.create_timer(self.control_update_rate, self.update_control_signal)
+    def _normalize_axis(self, ch, raw_val: int) -> float:
+        """Converts raw PWM/CRSF value (e.g. 988-2012 us) to a [-1.0, 1.0] float range."""
+        if raw_val >= self.ch_mid[ch]:
+            norm = (raw_val - self.ch_mid[ch]) / float(self.ch_max[ch] - self.ch_mid[ch])
+        else:
+            norm = (raw_val - self.ch_mid[ch]) / float(self.ch_mid[ch] - self.ch_min[ch])
 
-    self.joy_pub = self.create_publisher(Joy, "/joy", 1)
-    self.twist_pub = self.create_publisher(Twist, "/cmd_vel", 1)
+        # Clamp range
+        norm = max(-1.0, min(1.0, norm))
 
-    self.last_channel_rx = []
+        # Deadzone filter
+        if abs(norm) < self.deadzone:
+            return 0.0
 
-  def setup_crossfire(self):
+        return norm
 
-    opened_port = self.crsf_port.open_port()
+    def crsf_callback(self, msg: CRSFChannels):
+        if not msg.channels:
+            return
 
-    if not(opened_port):
-      self.log.error("CRSF port open failure")
-      return
+        joy_msg = Joy()
+        joy_msg.header.stamp = self.get_clock().now().to_msg()
+        joy_msg.header.frame_id = self.frame_id
 
-    self.log.info(f"Opened CRSF port on interface {self.interface}")
-    self.setup_port_timer.cancel()
+        axes = [0.0] * 16
+        buttons = [0] * 16
 
-  def update_control_signal(self):
+        for ch in range(16):
+            ch_val = msg.channels[ch]
+            ch_mid = self.ch_mid[ch]
 
-    if not(self.crsf_port.is_paired()):
-      self.log.error("Transmitter not paired", throttle_duration_sec=5)
-      return
+            if not(self.ch_enable[ch]):
+                continue
 
-    self.last_channel_rx = np.array(self.crsf_port.get_channel_state())
+            if self.ch_type[ch] == 0:
+                # Populate normalized continuous values into axes
+                axes[ch] = self._normalize_axis(ch, ch_val)
 
-    velocity_value = self.last_channel_rx[self.velocity_channel - 1]
-    rotation_value = self.last_channel_rx[self.rotation_channel - 1]
-    enable = 1 if (self.last_channel_rx[self.enable_channel - 1] > 200) else 0
+            elif self.ch_type[ch] == 1:
+                # Populate binary state (0 or 1) into buttons for switch handling
+                button_state = 1 if ch_val > ch_mid else 0
+                buttons[ch] = button_state
 
-    self.log.info(f'CH5: {self.last_channel_rx[self.enable_channel - 1]}', throttle_duration_sec=5)
+            else:
+                button_state = 0
 
-    if velocity_value < (self.velocity_range[1] + self.vel_deadzone) and \
-        velocity_value > (self.velocity_range[1] - self.vel_deadzone):
-      
-      velocity_value = 0.0
-    
-    else:
-      velocity_value = self.velocity_transform(velocity_value)
-      velocity_value = pow(abs(velocity_value), self.exponential_scale) * (1 if velocity_value >= 0 else -1);
-      velocity_value *= self.get_parameter('velocity.scale').get_parameter_value().double_value
-      
-    if rotation_value < (self.rotation_range[1] + self.rot_deadzone) and \
-       rotation_value > (self.rotation_range[1] - self.rot_deadzone):
+                if ch_val > ch_mid:
+                    button_state = 1
+                elif ch_val < ch_mid:
+                    button_state = -1
 
-      rotation_value = 0.0
+                buttons[ch] = button_state
 
-    else:  
-      rotation_value = self.rotation_transform(rotation_value)
-      rotation_value = pow(abs(rotation_value), self.exponential_scale) * (1 if rotation_value >= 0 else -1);
-      rotation_value *= self.get_parameter('rotation.scale').get_parameter_value().double_value
+        joy_msg.axes = axes
+        joy_msg.buttons = buttons
 
-    twist_msg = Twist()
-    twist_msg.linear.x = velocity_value
-    twist_msg.linear.y = 0.0
-    twist_msg.linear.z = 0.0
-    twist_msg.angular.x = 0.0
-    twist_msg.angular.y = 0.0
-    twist_msg.angular.z = rotation_value
+        self.joy_pub.publish(joy_msg)
 
-    self.twist_pub.publish(twist_msg)
-
-    joy_msg = Joy()
-    joy_msg.buttons = [0] * 32
-    joy_msg.buttons[1] = enable
-
-    self.joy_pub.publish(joy_msg)
-
-    # Turbo is applied as a ramp based on the axis value
-    # turbo_ramp = turbo_scale_map.at(fieldname) - scale_map.at(fieldname);
-    # turbo_gain = (joy_msg->axes[turbo_axis] - 1) * -0.5 * turbo_ramp;
-    # return joystick_value * (scale_map.at(fieldname) + turbo_gain);
 
 def main(args=None):
     rclpy.init(args=args)
+    node = RCJoyNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
-    wrapper = RcJoy()
 
-    rclpy.spin(wrapper)
-    wrapper.stop_motors()
-    wrapper.destroy_node()
-    rclpy.shutdown()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
