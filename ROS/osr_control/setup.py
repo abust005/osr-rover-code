@@ -28,6 +28,8 @@ setup(
             'roboclaw_wrapper = osr_control.roboclaw_wrapper:main',
             'servokit_interface = osr_control.servokit_interface:main',
             'servo_control = osr_control.servo_control:main',
+            'status_light = osr_control.status_light:main',
+            'chassis_fan = osr_control.chassis_fan:main',
             'ina260 = osr_control.ina_260_pub:main',
             'rc_joy = osr_control.rc_joy:main',
             'crsf = osr_control.crsf_node:main',
