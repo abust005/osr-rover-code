@@ -53,7 +53,7 @@ class RCJoyNode(Node):
         self.deadzone = self.get_parameter('deadzone').get_parameter_value().double_value
 
         # --- Publishers and Subscribers ---
-        self.joy_pub = self.create_publisher(Joy, '/joy', 10)
+        self.joy_pub = self.create_publisher(Joy, '/joy', 1)
         self.crsf_sub = self.create_subscription(
             CRSFChannels,
             '/crsf',
