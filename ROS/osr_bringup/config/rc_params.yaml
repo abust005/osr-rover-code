@@ -17,4 +17,4 @@ rc_joy:
       scale: -1.25
     turbo_channel: 9
 
-    deadzone: 0.02
+    deadzone: 0.08
