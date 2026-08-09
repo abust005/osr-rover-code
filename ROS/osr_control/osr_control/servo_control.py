@@ -55,13 +55,10 @@ class ServoWrapper(Node):
         self.servo_direction = -1  # set to 1 if the servos are positive pwm clockwise
         self.enc_pub_timer = self.create_timer(self.enc_pub_timer_period, self.publish_encoder_estimate)
 
-        self.setup_timer = self.create_timer(10.0, self.setup_servos)
         self.setup_servos()
 
     
     def setup_servos(self):
-        self.setup_timer.cancel()
-        time.sleep(0.1)
         self.log.info("setting servo params")
 
         for servo_id in range(4):

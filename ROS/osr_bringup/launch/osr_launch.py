@@ -2,7 +2,7 @@ import os
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler
-from launch.event_handlers import OnProcessStart
+from launch.event_handlers import OnProcessStart, TimerAction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -63,7 +63,12 @@ def generate_launch_description():
         RegisterEventHandler(
             OnProcessStart(
                 target_action=servokit_interface_node,
-                on_start=[servo_control_node]
+                on_start=[
+                    TimerAction(
+                        period=3.0,
+                        actions=[servo_control_node]
+                    )
+                ]
             )
         )
     )
