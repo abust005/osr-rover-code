@@ -25,6 +25,9 @@ class ServokitInterface(Node):
 
         self.cmd_servokit_sub = self.create_subscription(CommandServoKit, "/cmd_servokit", self.servokit_cmd_cb, 10)
 
+        # Keep track of last-commanded angle for each channel to avoid commanding the same angle over and over
+        self.last_angles = [-1000]
+
     def connect_pca9685(self):
         self.log.debug("Creating ServoKit instance")
         self.kit = ServoKit(channels=16)
@@ -34,6 +37,7 @@ class ServokitInterface(Node):
             return
 
         channel = cmd.servo_id
+        last_angle = self.last_angles[channel]
 
         if channel < 0 or channel > 15:
             self.log.warn(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)
@@ -49,7 +53,7 @@ class ServokitInterface(Node):
                 self.log.error(f"Setup failed: {e}")
 
         # LEAN path for high-frequency movement commands
-        if cmd.new_angle != 0:
+        if cmd.new_angle != last_angle:
             try:
                 # Use a float cast for angle to ensure precision
                 self.kit.servo[channel].angle = float(cmd.new_angle)
@@ -58,6 +62,9 @@ class ServokitInterface(Node):
                 self.log.warn(f"Angle {cmd.new_angle} out of range for channel {channel}", throttle_duration_sec=1)
             except Exception as e:
                 self.log.error(f"Servo Error: {e}")
+            finally:
+                # Update the last-commanded angles list
+                self.last_angles[channel] = cmd.new_angle
 
 def main(args=None):
     rclpy.init(args=args)
