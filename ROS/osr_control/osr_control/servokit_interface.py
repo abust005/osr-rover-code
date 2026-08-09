@@ -29,7 +29,7 @@ class ServokitInterface(Node):
         channel = cmd.servo_id
 
         if channel < 0 or channel > 15:
-            self.log.error(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)
+            self.log.warn(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)
             return
 
         # ONLY update hardware config if the setup flag is true
@@ -40,7 +40,6 @@ class ServokitInterface(Node):
                 self.kit.servo[channel].set_pulse_width_range(*cmd.pulse_width_range)
             except Exception as e:
                 self.log.error(f"Setup failed: {e}")
-            return
 
         # LEAN path for high-frequency movement commands
         if cmd.new_angle != 0:
