@@ -26,7 +26,7 @@ class ServokitInterface(Node):
         self.cmd_servokit_sub = self.create_subscription(CommandServoKit, "/cmd_servokit", self.servokit_cmd_cb, 10)
 
         # Keep track of last-commanded angle for each channel to avoid commanding the same angle over and over
-        self.last_angles = [-1000]
+        self.last_angles = [-1000] * 16
 
     def connect_pca9685(self):
         self.log.debug("Creating ServoKit instance")
@@ -37,11 +37,12 @@ class ServokitInterface(Node):
             return
 
         channel = cmd.channel_id
-        last_angle = self.last_angles[channel]
 
         if channel < 0 or channel > 15:
             self.log.warn(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)
             return
+
+        last_angle = self.last_angles[channel]
 
         # ONLY update hardware config if the setup flag is true
         if cmd.setup:
