@@ -77,7 +77,8 @@ def generate_launch_description():
             emulate_tty=True,
             respawn=True,
             parameters=[osr_params,
-                        {'enable_odometry': LaunchConfiguration('enable_odometry')}]
+                        {'enable_odometry': LaunchConfiguration('enable_odometry')},
+                        {'publish_transform': LaunchConfiguration('publish_transform')}]
         )
     )
 
