@@ -27,6 +27,14 @@ class ServoWrapper(Node):
             ]
         )
 
+        # Ensure only one servo wrapper exists
+        node_names = self.get_node_names()
+        matching_nodes = [n for n in node_names if n == self.get_name()]
+        
+        if len(matching_nodes) > 1:
+            self.log.error(f"Instance of {self.get_name()} already exists! Shutting down.")
+            self.destroy_node()
+
         # PWM settings from https://www.gobilda.com/2000-series-dual-mode-servo-25-2-torque/
         self.servo_actuation_range = 300  # [deg]
         self.centered_pulse_widths = self.get_parameter('centered_pulse_widths').get_parameter_value().integer_array_value
@@ -47,19 +55,16 @@ class ServoWrapper(Node):
         self.servo_direction = -1  # set to 1 if the servos are positive pwm clockwise
         self.enc_pub_timer = self.create_timer(self.enc_pub_timer_period, self.publish_encoder_estimate)
 
-        self.setup_timer = self.create_timer(10.0, self.setup_servos)
         self.setup_servos()
 
     
     def setup_servos(self):
-        self.setup_timer.cancel()
-        time.sleep(0.1)
         self.log.info("setting servo params")
 
         for servo_id in range(4):
 
             self.servo_cmd_msg.setup = True
-            self.servo_cmd_msg.servo_id = servo_id
+            self.servo_cmd_msg.channel_id = servo_id
             self.servo_cmd_msg.actuation_range = self.servo_actuation_range
             self.servo_cmd_msg.pulse_width_range = [*self.pulse_width_range]
             self.servo_cmd_msg.new_angle = self.centered_pulse_widths[servo_id]
@@ -87,7 +92,7 @@ class ServoWrapper(Node):
             angle = max(min(angle, self.servo_actuation_range), 0)
 
             # publish ServoKit command
-            self.servo_cmd_msg.servo_id = ind
+            self.servo_cmd_msg.channel_id = ind
             self.servo_cmd_msg.new_angle = int(angle)
             self.servo_pub.publish(self.servo_cmd_msg)
 

@@ -13,10 +13,20 @@ class ServokitInterface(Node):
         self.log = self.get_logger()
         self.kit = None
 
+        # Ensure only one servokit interface exists
+        node_names = self.get_node_names()
+        matching_nodes = [n for n in node_names if n == self.get_name()]
+        
+        if len(matching_nodes) > 1:
+            self.log.error(f"Instance of {self.get_name()} already exists! Shutting down.")
+            self.destroy_node()
+
         self.connect_pca9685()
 
         self.cmd_servokit_sub = self.create_subscription(CommandServoKit, "/cmd_servokit", self.servokit_cmd_cb, 10)
 
+        # Keep track of last-commanded angle for each channel to avoid commanding the same angle over and over
+        self.last_angles = [-1000]
 
     def connect_pca9685(self):
         self.log.debug("Creating ServoKit instance")
@@ -26,10 +36,11 @@ class ServokitInterface(Node):
         if not self.kit:
             return
 
-        channel = cmd.servo_id
+        channel = cmd.channel_id
+        last_angle = self.last_angles[channel]
 
         if channel < 0 or channel > 15:
-            self.log.error(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)
+            self.log.warn(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)
             return
 
         # ONLY update hardware config if the setup flag is true
@@ -40,10 +51,9 @@ class ServokitInterface(Node):
                 self.kit.servo[channel].set_pulse_width_range(*cmd.pulse_width_range)
             except Exception as e:
                 self.log.error(f"Setup failed: {e}")
-            return
 
         # LEAN path for high-frequency movement commands
-        if cmd.new_angle != 0:
+        if cmd.new_angle != last_angle:
             try:
                 # Use a float cast for angle to ensure precision
                 self.kit.servo[channel].angle = float(cmd.new_angle)
@@ -52,6 +62,9 @@ class ServokitInterface(Node):
                 self.log.warn(f"Angle {cmd.new_angle} out of range for channel {channel}", throttle_duration_sec=1)
             except Exception as e:
                 self.log.error(f"Servo Error: {e}")
+            finally:
+                # Update the last-commanded angles list
+                self.last_angles[channel] = cmd.new_angle
 
 def main(args=None):
     rclpy.init(args=args)
