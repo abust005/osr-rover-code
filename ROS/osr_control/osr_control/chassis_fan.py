@@ -41,7 +41,7 @@ class ChassisFan(Node):
         sensors.init()
 
         self.servokit_cmd.setup = True
-        self.servokit_cmd.servo_id = self.fan_channel
+        self.servokit_cmd.channel_id = self.fan_channel
         self.servokit_cmd.actuation_range = self.fan_range
         self.servokit_cmd.pulse_width_range = [*self.pulse_width_range]
         
