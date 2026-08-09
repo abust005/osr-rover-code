@@ -64,7 +64,7 @@ class ServoWrapper(Node):
         for servo_id in range(4):
 
             self.servo_cmd_msg.setup = True
-            self.servo_cmd_msg.servo_id = servo_id
+            self.servo_cmd_msg.channel_id = servo_id
             self.servo_cmd_msg.actuation_range = self.servo_actuation_range
             self.servo_cmd_msg.pulse_width_range = [*self.pulse_width_range]
             self.servo_cmd_msg.new_angle = self.centered_pulse_widths[servo_id]
@@ -92,7 +92,7 @@ class ServoWrapper(Node):
             angle = max(min(angle, self.servo_actuation_range), 0)
 
             # publish ServoKit command
-            self.servo_cmd_msg.servo_id = ind
+            self.servo_cmd_msg.channel_id = ind
             self.servo_cmd_msg.new_angle = int(angle)
             self.servo_pub.publish(self.servo_cmd_msg)
 

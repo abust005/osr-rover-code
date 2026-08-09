@@ -124,7 +124,7 @@ You can always come back to this and change these later. In the window where the
 
 ## Confirming connection to the INA260
 
-If you installed the INA260 voltage, current, and power monitor on the PCB, let's check if we're able to connec to it by running the test script:
+If you installed the INA260 voltage, current, and power monitor on the PCB, let's check if we're able to connect to it by running the test script:
 
 ```bash
 cd ~/osr_ws/src/osr-rover-code/scripts
@@ -185,6 +185,17 @@ should be set to `scale_linear / min_radius`. For the default configuration, the
 
 > [!CAUTION]
 > At these speeds, the rover can be fast and strong enough to inflict damage or cause injury. Use caution and lower velocities to drive the rover in the presence of humans or obstacles.
+
+## Connecting other PWM peripherals
+
+The motor control board on the rover exposes more of the available PWM channels on the PCA9685 servo control board. While 0-3 are taken up by the servos, you can connect more PWM-controllable devices to these channels.
+
+The [ServokitInterface](../ROS/osr_control/osr_control/servokit_interface.py) node "owns" the connection to the PCA9685, serving as the intermediary between any higher-level control nodes (like the [ServoWrapper](../ROS/osr_control/osr_control/servo_control.py) node) and the PCA9685. 
+
+If you want to create new nodes to use additional PWM channels, they should publish to the `/cmd_servokit` topic using the [CommandServoKit](../ROS/osr_interfaces/msg/CommandServoKit.msg) message type. Any additional PWM channels being used should be initially configured with a setup message that defines the acceptable 
+actuation range and pulse-width range. 
+
+Because this node is build on top of the ServoKit package, the terminology "angle" and "actuation range" is not cleanly-applicable to non-servo devices. Some experimentation may be required.
 
 ## Automatic bringup with launch script
 

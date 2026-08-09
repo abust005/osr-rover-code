@@ -36,7 +36,7 @@ class ServokitInterface(Node):
         if not self.kit:
             return
 
-        channel = cmd.servo_id
+        channel = cmd.channel_id
         last_angle = self.last_angles[channel]
 
         if channel < 0 or channel > 15:
