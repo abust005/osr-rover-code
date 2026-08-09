@@ -13,10 +13,17 @@ class ServokitInterface(Node):
         self.log = self.get_logger()
         self.kit = None
 
+        # Ensure only one servokit interface exists
+        node_names = self.get_node_names()
+        matching_nodes = [n for n in node_names if n == self.get_name()]
+        
+        if len(matching_nodes) > 1:
+            self.log.error(f"Instance of {self.get_name()} already exists! Shutting down.")
+            self.destroy_node()
+
         self.connect_pca9685()
 
         self.cmd_servokit_sub = self.create_subscription(CommandServoKit, "/cmd_servokit", self.servokit_cmd_cb, 10)
-
 
     def connect_pca9685(self):
         self.log.debug("Creating ServoKit instance")
