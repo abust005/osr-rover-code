@@ -36,6 +36,12 @@ class ChassisFan(Node):
 
         self.last_speed = FanSpeed.SHUTDOWN
 
+    def __del__(self):
+
+        self.servokit_cmd.setup = False
+        self.servokit_cmd.new_angle = FanSpeed.SHUTDOWN.value
+        self.cmd_servokit_pub.publish(self.servokit_cmd)
+
     def setup_fan(self):
 
         sensors.init()
