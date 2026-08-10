@@ -10,10 +10,10 @@ from osr_interfaces.msg import CommandServoKit, Status
 
 class FanSpeed(Enum):
     SHUTDOWN = 0
-    IDLE = 100
-    LOW = 175
-    MID = 250
-    HIGH = 300
+    IDLE = 25
+    LOW = 50
+    MID = 75
+    HIGH = 100
 
 class ChassisFan(Node):
     def __init__(self):
@@ -21,8 +21,8 @@ class ChassisFan(Node):
         self.log = self.get_logger()
 
         self.fan_channel = 4
-        self.fan_range = 300
-        self.pulse_width_range = (500,2500)
+        self.fan_range = 100
+        self.pulse_width_range = (0,20000)
 
         self.servokit_cmd = CommandServoKit()
         self.servokit_cmd.src = "chassis_fan"
@@ -76,6 +76,8 @@ class ChassisFan(Node):
             self.servokit_cmd.setup = False
             self.servokit_cmd.new_angle = fan_speed.value
             self.cmd_servokit_pub.publish(self.servokit_cmd)
+
+            self.last_speed = fan_speed
 
 
 def main(args=None):
