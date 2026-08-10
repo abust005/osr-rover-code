@@ -91,7 +91,7 @@ def generate_launch_description():
         output='screen',
         emulate_tty=True,
         respawn=True,
-        parameters=[{'centered_pulse_widths': [148, 155, 148, 158]}]
+        parameters=[{'centered_pulse_widths': [150, 152, 153, 150]}]
     )
 
     ld.add_action(servokit_interface_node)
