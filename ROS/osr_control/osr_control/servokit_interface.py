@@ -52,6 +52,7 @@ class ServokitInterface(Node):
                 self.kit.servo[channel].set_pulse_width_range(*cmd.pulse_width_range)
             except Exception as e:
                 self.log.error(f"Setup failed: {e}")
+            return
 
         # LEAN path for high-frequency movement commands
         if cmd.new_angle != last_angle:
