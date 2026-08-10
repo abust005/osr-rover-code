@@ -26,7 +26,7 @@ class ServokitInterface(Node):
         self.cmd_servokit_sub = self.create_subscription(CommandServoKit, "/cmd_servokit", self.servokit_cmd_cb, 10)
 
         # Keep track of last-commanded angle for each channel to avoid commanding the same angle over and over
-        self.last_angles = [-1000] * 16
+        self.last_angles = [0] * 16
 
     def connect_pca9685(self):
         self.log.debug("Creating ServoKit instance")
@@ -52,6 +52,7 @@ class ServokitInterface(Node):
                 self.kit.servo[channel].set_pulse_width_range(*cmd.pulse_width_range)
             except Exception as e:
                 self.log.error(f"Setup failed: {e}")
+            return
 
         # LEAN path for high-frequency movement commands
         if cmd.new_angle != last_angle:
