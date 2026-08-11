@@ -13,7 +13,7 @@ class FanSpeed(Enum):
     IDLE = 25
     LOW = 50
     MID = 75
-    HIGH = 100
+    HIGH = 99
 
 class ChassisFan(Node):
     def __init__(self):
