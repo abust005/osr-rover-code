@@ -34,7 +34,8 @@ class ServoWrapper(Node):
             self.log.error(f"Instance of {self.get_name()} already exists! Shutting down.")
             self.destroy_node()
             return
-
+        
+        self.servo_actuation_range = 300
         self.centered_pulse_widths = self.get_parameter('centered_pulse_widths').get_parameter_value().integer_array_value
         assert(len(self.centered_pulse_widths) == 4)
         self.deg_per_sec = 200
