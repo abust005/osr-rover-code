@@ -35,7 +35,6 @@ class PCA9685Interface(Node):
         self.connect_pca9685()
         self.channel_params = self.get_parameters_by_prefix('channel_mapping')
         self.params_to_dict()
-        self.channel_setup()
 
         self.cmd_pca_sub = self.create_subscription(CommandPWM, "/cmd_pwm", self.pca9685_cmd_cb, 10)
 
@@ -44,6 +43,8 @@ class PCA9685Interface(Node):
 
         # Account for 16 possible servos
         self.servos = [None] * 16
+
+        self.channel_setup()
 
     def __del__(self):
         self.pca.deinit()
@@ -107,13 +108,16 @@ class PCA9685Interface(Node):
 
         if cmd.duty_cycle != last_signal:
 
-            # handle servos separately from generic PWM peripherals
-            if self.servos[channel] != None:
+            # Handle standard and continuous servos separately from generic PWM
+            if self.servos[channel] is not None:
                 try:
-                    # Use a float cast for angle to ensure precision
-                    self.pca.servo[channel].angle = cmd.duty_cycle
-                    self.last_signal[channel] = cmd.duty_cycle
+                    target_servo = self.servos[channel]
+                    if isinstance(target_servo, servo.ContinuousServo):
+                        target_servo.throttle = float(cmd.duty_cycle)
+                    else:
+                        target_servo.angle = float(cmd.duty_cycle)
 
+                    self.last_signal[channel] = cmd.duty_cycle
                 except ValueError:
                     # Handle out of range without killing the node
                     self.log.warn(f"Angle {cmd.duty_cycle} out of range for channel {channel}", throttle_duration_sec=1)
