@@ -26,7 +26,7 @@ setup(
         'console_scripts': [
             'rover = osr_control.rover:main',
             'roboclaw_wrapper = osr_control.roboclaw_wrapper:main',
-            'servokit_interface = osr_control.servokit_interface:main',
+            'pca9685_interface = osr_control.pca_9685_interface:main',
             'servo_control = osr_control.servo_control:main',
             'status_light = osr_control.status_light:main',
             'chassis_fan = osr_control.chassis_fan:main',

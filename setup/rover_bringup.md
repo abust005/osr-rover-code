@@ -206,7 +206,6 @@ The [ServokitInterface](../ROS/osr_control/osr_control/servokit_interface.py) no
 If you want to create new nodes to use additional PWM channels, they should publish to the `/cmd_servokit` topic using the [CommandServoKit](../ROS/osr_interfaces/msg/CommandServoKit.msg) message type. Any additional PWM channels being used should be initially configured with a setup message that defines the acceptable 
 actuation range and pulse-width range. 
 
-Because this node is build on top of the ServoKit package, the terminology "angle" and "actuation range" is not cleanly-applicable to non-servo devices. Some experimentation may be required.
 
 ## Automatic bringup with launch script
 
