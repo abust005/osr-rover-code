@@ -28,6 +28,7 @@ class ChassisFan(Node):
         
         self.cmd_pwm_pub = self.create_publisher(CommandPWM, "/cmd_pwm", 1)
 
+        sensors.init()
 
         slow_loop_rate = 5  # seconds
         self.slow_timer = self.create_timer(slow_loop_rate, self.fan_control)
