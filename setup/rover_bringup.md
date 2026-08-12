@@ -190,11 +190,12 @@ should be set to `scale_linear / min_radius`. For the default configuration, the
 
 The motor control board on the rover exposes more of the available PWM channels on the PCA9685 servo control board. While 0-3 are taken up by the servos, you can connect more PWM-controllable devices to these channels.
 
-The [ServokitInterface](../ROS/osr_control/osr_control/servokit_interface.py) node "owns" the connection to the PCA9685, serving as the intermediary between any higher-level control nodes (like the [ServoWrapper](../ROS/osr_control/osr_control/servo_control.py) node) and the PCA9685. 
+The [PCA9685Interface](../ROS/osr_control/osr_control/pca_9685_interface.py) node "owns" the connection to the PCA9685, serving as the intermediary between any higher-level control nodes (like the [ServoWrapper](../ROS/osr_control/osr_control/servo_control.py) node) and the PCA9685. 
 
-If you want to create new nodes to use additional PWM channels, they should publish to the `/cmd_servokit` topic using the [CommandServoKit](../ROS/osr_interfaces/msg/CommandServoKit.msg) message type. Any additional PWM channels being used should be initially configured with a setup message that defines the acceptable 
-actuation range and pulse-width range. 
+If you want to create new nodes to use additional PWM channels, they should publish to the `/cmd_pwm` topic using the [CommandPWM](../ROS/osr_interfaces/msg/CommandPWM.msg) message type. If attaching servos (continuous or otherwise), be sure to configure their parameters in [the parameters file](../ROS/osr_bringup/config/pca9685_params.yaml) for the PCA9685. 
 
+> [!NOTE]
+> The CommandPWM message uses duty_cycle as an overloaded field; for servos, it should contain the new servo angle being commanded, and for other generic PWM peripherals, a duty cycle 0-100%
 
 ## Automatic bringup with launch script
 
