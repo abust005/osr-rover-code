@@ -23,6 +23,7 @@ class ChassisFan(Node):
         self.fan_channel = 4
 
         self.pwm_cmd = CommandPWM()
+        self.pwm_cmd.channel = self.fan_channel
         self.pwm_cmd.src = "chassis_fan"
         
         self.cmd_pwm_pub = self.create_publisher(CommandPWM, "/cmd_pwm", 1)

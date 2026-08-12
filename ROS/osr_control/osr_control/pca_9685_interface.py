@@ -98,7 +98,7 @@ class PCA9685Interface(Node):
         if not self.pca:
             return
 
-        channel = cmd.channel_id
+        channel = cmd.channel
 
         if channel < 0 or channel > 15:
             self.log.warn(f"Channel {channel} is out of range, dropping command", throttle_duration_sec=1)

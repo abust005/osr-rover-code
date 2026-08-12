@@ -20,6 +20,7 @@ class StatusLight(Node):
         self.status_light_channel = 7
 
         self.pwm_cmd = CommandPWM()
+        self.pwm_cmd.channel = self.status_light_channel
         self.pwm_cmd.src = "status_light"
         
         self.joy_sub = self.create_subscription(Joy, "/joy", self.drive_state_cb, 1)
