@@ -69,7 +69,7 @@ class ServoWrapper(Node):
 
             # publish PCA9685 command
             self.servo_cmd_msg.channel = ind
-            self.servo_cmd_msg.duty_cycle = int(angle)
+            self.servo_cmd_msg.duty_cycle = angle
             self.servo_pub.publish(self.servo_cmd_msg)
 
 

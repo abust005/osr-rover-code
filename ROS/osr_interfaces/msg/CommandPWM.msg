@@ -1,4 +1,4 @@
 # command message for PCA9685 control node
 uint8 channel
-uint16 duty_cycle 
+float32 duty_cycle 
 string src

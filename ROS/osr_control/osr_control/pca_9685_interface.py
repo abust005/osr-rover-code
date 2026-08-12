@@ -108,7 +108,7 @@ class PCA9685Interface(Node):
             if self.servos[channel] != None:
                 try:
                     # Use a float cast for angle to ensure precision
-                    self.pca.servo[channel].angle = float(cmd.duty_cycle)
+                    self.pca.servo[channel].angle = cmd.duty_cycle
                     self.last_signal[channel] = cmd.duty_cycle
 
                 except ValueError:
@@ -124,7 +124,7 @@ class PCA9685Interface(Node):
 
                 self.pca.channels[channel].duty_cycle = duty_cycle
                 self.last_signal[channel] = cmd.duty_cycle
-                
+
             except Exception as e:
                 self.log.error(f"PWM Error: {e}")
 
