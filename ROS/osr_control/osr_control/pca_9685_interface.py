@@ -32,7 +32,7 @@ class PCA9685Interface(Node):
             self.destroy_node()
             return
 
-        # self.connect_pca9685()
+        self.connect_pca9685()
         self.channel_params = self.get_parameters_by_prefix('channel_mapping')
         self.params_to_dict()
         self.channel_setup()
@@ -44,6 +44,9 @@ class PCA9685Interface(Node):
 
         # Account for 16 possible servos
         self.servos = [None] * 16
+
+    def __del__(self):
+        self.pca.deinit()
 
     def connect_pca9685(self):
 
