@@ -20,6 +20,11 @@ def generate_launch_description():
         'config',
         'osr_params.yaml'
     )
+    pca_params = os.path.join(
+        get_package_share_directory('osr_bringup'),
+        'config',
+        'pca9685_params.yaml'
+    )
 
     ld = LaunchDescription()
     
@@ -38,13 +43,14 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_odometry', default_value='false')
     )
 
-    servokit_interface_node = Node(
+    pca_9685_interface_node = Node(
         package='osr_control',
         executable='servokit_interface',
         name='servokit_interface',
         output='screen',
         emulate_tty=True,
-        respawn=True
+        respawn=True,
+        parameters=[pca_params]
     )
 
     servo_control_node = Node(
@@ -57,7 +63,7 @@ def generate_launch_description():
         parameters=[{'centered_pulse_widths': [148, 155, 148, 158]}]
     )
 
-    ld.add_action(servokit_interface_node)
+    ld.add_action(pca_9685_interface_node)
     ld.add_action(servo_control_node)
 
     ld.add_action(
