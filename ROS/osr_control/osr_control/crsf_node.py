@@ -47,6 +47,11 @@ class CRSF_RX(Node):
       self.log.error("CRSF port open failure")
       return
 
+    if not(self.crsf_port.is_paired()):
+      self.crsf_port.close_port()
+      self.log.error("Transmitter not paired, reinitializing", throttle_duration_sec=5)
+      return
+
     self.log.info(f"Opened CRSF port on interface {self.interface}")
     self.setup_port_timer.cancel()
 
