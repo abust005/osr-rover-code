@@ -12,9 +12,9 @@ from adafruit_pca9685 import PCA9685
 from osr_interfaces.msg import CommandPWM
 
 class ChannelType(Enum):
-    SERVO = 1
-    CONTINUOUS = 2
-    GENERIC = 3
+    SERVO = 0
+    CONTINUOUS = 1
+    GENERIC = 2
 
 class PCA9685Interface(Node):
     def __init__(self):
