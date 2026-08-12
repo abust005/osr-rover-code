@@ -58,20 +58,7 @@ def generate_launch_description():
     )
 
     ld.add_action(servokit_interface_node)
-
-    ld.add_action(
-        RegisterEventHandler(
-            OnProcessStart(
-                target_action=servokit_interface_node,
-                on_start=[
-                    TimerAction(
-                        period=3.0,
-                        actions=[servo_control_node]
-                    )
-                ]
-            )
-        )
-    )
+    ld.add_action(servo_control_node)
 
     ld.add_action(
         Node(
