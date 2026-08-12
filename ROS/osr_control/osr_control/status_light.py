@@ -6,11 +6,11 @@ from rclpy.parameter import Parameter
 
 # message imports
 from sensor_msgs.msg import Joy
-from osr_interfaces.msg import CommandServoKit, Status
+from osr_interfaces.msg import CommandPWM, Status
 
 class ColorPwm(Enum):
-    RED = 42
-    GREEN = 85
+    RED = 28
+    GREEN = 50
 
 class StatusLight(Node):
     def __init__(self):
@@ -18,37 +18,16 @@ class StatusLight(Node):
         self.log = self.get_logger()
 
         self.status_light_channel = 7
-        self.light_range = 300
-        self.pulse_width_range = (500,2500)
 
-        self.servokit_cmd = CommandServoKit()
-        self.servokit_cmd.src = "status_light"
+        self.pwm_cmd = CommandPWM()
+        self.pwm_cmd.src = "status_light"
         
         self.joy_sub = self.create_subscription(Joy, "/joy", self.drive_state_cb, 1)
-        self.cmd_servokit_pub = self.create_publisher(CommandServoKit, "/cmd_servokit", 1)
-
-        self.setup_light()
+        self.cmd_pwm_pub = self.create_publisher(CommandPWM, "/cmd_pwm", 1)
 
         self.was_enabled = False 
 
         self.color = ColorPwm.RED
-
-    def setup_light(self):
-
-        self.servokit_cmd.setup = True
-        self.servokit_cmd.channel_id = self.status_light_channel
-        self.servokit_cmd.actuation_range = self.light_range
-        self.servokit_cmd.pulse_width_range = [*self.pulse_width_range]
-        self.servokit_cmd.new_angle = 42
-        
-        self.log.info(f"Setting up light on channel {self.status_light_channel}")
-
-        self.cmd_servokit_pub.publish(self.servokit_cmd)
-
-        time.sleep(0.1)
-
-        self.servokit_cmd.setup = False
-        self.cmd_servokit_pub.publish(self.servokit_cmd)
 
     def drive_state_cb(self, msg: Joy):
 
@@ -59,14 +38,13 @@ class StatusLight(Node):
         else:
             self.color = ColorPwm.RED
 
-        self.servokit_cmd.new_angle = self.color.value 
+        self.pwm_cmd.duty_cycle = float(self.color.value) 
 
         if is_enabled != self.was_enabled:
             
             self.log.info(f"Enable updated to {is_enabled}, publishing status light command with color {self.color.name}")
 
-            self.servokit_cmd.setup = False
-            self.cmd_servokit_pub.publish(self.servokit_cmd)
+            self.cmd_pwm_pub.publish(self.pwm_cmd)
 
         self.was_enabled = is_enabled
 

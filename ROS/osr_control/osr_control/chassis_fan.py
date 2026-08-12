@@ -6,14 +6,14 @@ from rclpy.node import Node
 import sensors
 
 # message imports
-from osr_interfaces.msg import CommandServoKit, Status
+from osr_interfaces.msg import CommandPWM, Status
 
 class FanSpeed(Enum):
     SHUTDOWN = 0
     IDLE = 25
     LOW = 50
     MID = 75
-    HIGH = 99
+    HIGH = 100
 
 class ChassisFan(Node):
     def __init__(self):
@@ -21,15 +21,12 @@ class ChassisFan(Node):
         self.log = self.get_logger()
 
         self.fan_channel = 4
-        self.fan_range = 100
-        self.pulse_width_range = (0,20000)
 
-        self.servokit_cmd = CommandServoKit()
-        self.servokit_cmd.src = "chassis_fan"
+        self.pwm_cmd = CommandPWM()
+        self.pwm_cmd.src = "chassis_fan"
         
-        self.cmd_servokit_pub = self.create_publisher(CommandServoKit, "/cmd_servokit", 1)
+        self.cmd_pwm_pub = self.create_publisher(CommandPWM, "/cmd_pwm", 1)
 
-        self.setup_fan()
 
         slow_loop_rate = 5  # seconds
         self.slow_timer = self.create_timer(slow_loop_rate, self.fan_control)
@@ -38,22 +35,8 @@ class ChassisFan(Node):
 
     def __del__(self):
 
-        self.servokit_cmd.setup = False
-        self.servokit_cmd.new_angle = FanSpeed.SHUTDOWN.value
-        self.cmd_servokit_pub.publish(self.servokit_cmd)
-
-    def setup_fan(self):
-
-        sensors.init()
-
-        self.servokit_cmd.setup = True
-        self.servokit_cmd.channel_id = self.fan_channel
-        self.servokit_cmd.actuation_range = self.fan_range
-        self.servokit_cmd.pulse_width_range = [*self.pulse_width_range]
-        
-        self.cmd_servokit_pub.publish(self.servokit_cmd)
-
-        self.servokit_cmd.setup = False
+        self.pwm_cmd.duty_cycle = FanSpeed.SHUTDOWN.value
+        self.cmd_pwm_pub.publish(self.pwm_cmd)
 
     def fan_control(self):
 
@@ -79,9 +62,8 @@ class ChassisFan(Node):
 
             self.log.info(f"Fan Speed Update: {fan_speed.name}")
 
-            self.servokit_cmd.setup = False
-            self.servokit_cmd.new_angle = fan_speed.value
-            self.cmd_servokit_pub.publish(self.servokit_cmd)
+            self.pwm_cmd.duty_cycle = float(fan_speed.value)
+            self.cmd_pwm_pub.publish(self.pwm_cmd)
 
             self.last_speed = fan_speed
 
