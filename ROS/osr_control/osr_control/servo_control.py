@@ -34,6 +34,7 @@ class ServoWrapper(Node):
         if len(matching_nodes) > 1:
             self.log.error(f"Instance of {self.get_name()} already exists! Shutting down.")
             self.destroy_node()
+            return
 
         # PWM settings from https://www.gobilda.com/2000-series-dual-mode-servo-25-2-torque/
         self.servo_actuation_range = 300  # [deg]

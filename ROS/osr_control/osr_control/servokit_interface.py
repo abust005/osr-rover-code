@@ -20,13 +20,14 @@ class ServokitInterface(Node):
         if len(matching_nodes) > 1:
             self.log.error(f"Instance of {self.get_name()} already exists! Shutting down.")
             self.destroy_node()
+            return
 
         self.connect_pca9685()
 
         self.cmd_servokit_sub = self.create_subscription(CommandServoKit, "/cmd_servokit", self.servokit_cmd_cb, 10)
 
         # Keep track of last-commanded angle for each channel to avoid commanding the same angle over and over
-        self.last_angles = [0] * 16
+        self.last_angles = [None] * 16
 
     def connect_pca9685(self):
         self.log.debug("Creating ServoKit instance")
@@ -59,14 +60,13 @@ class ServokitInterface(Node):
             try:
                 # Use a float cast for angle to ensure precision
                 self.kit.servo[channel].angle = float(cmd.new_angle)
+                self.last_angles[channel] = cmd.new_angle
+
             except ValueError:
                 # Handle out of range without killing the node
                 self.log.warn(f"Angle {cmd.new_angle} out of range for channel {channel}", throttle_duration_sec=1)
             except Exception as e:
                 self.log.error(f"Servo Error: {e}")
-            finally:
-                # Update the last-commanded angles list
-                self.last_angles[channel] = cmd.new_angle
 
 def main(args=None):
     rclpy.init(args=args)
