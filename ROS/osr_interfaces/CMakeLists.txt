@@ -21,7 +21,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/Status.msg"
     "msg/CommandDrive.msg"
     "msg/CommandCorner.msg"
-    "msg/CommandServoKit.msg"
+    "msg/CommandPWM.msg"
 )
 
 if(BUILD_TESTING)
