@@ -44,8 +44,8 @@ def generate_launch_description():
 
     pca_9685_interface_node = Node(
         package='osr_control',
-        executable='servokit_interface',
-        name='servokit_interface',
+        executable='pca9685_interface',
+        name='pca9685_interface',
         output='screen',
         emulate_tty=True,
         respawn=True,
