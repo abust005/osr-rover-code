@@ -26,4 +26,10 @@ pca9685_interface:
         type: 0
         actuation_range: 300
         pulse_width_range: [500, 2500]
+      status_light:
+        channel: 7
+        type: 2
+      chassis_fan:
+        channel: 4
+        type: 2
       
