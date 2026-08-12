@@ -4,11 +4,13 @@ pca9685_interface:
       # channel: integer 0-15
       # type: 0 = servo, 1 = continuous servo, 2 = generic PWM
       # actuation range, pulse_width_range are only valid for servo types
+
+      # PWM settings from https://www.gobilda.com/2000-series-dual-mode-servo-25-2-torque/
       back_right_servo:
         channel: 0
         type: 0
-        actuation_range: 300
-        pulse_width_range: [500, 2500]
+        actuation_range: 300 # degree
+        pulse_width_range: [500, 2500] # [microsec]
       front_right_servo:
         channel: 1
         type: 0

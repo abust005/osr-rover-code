@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from enum import Enum
+from math import ceil
 
 # project libraries
 import board
@@ -107,7 +108,7 @@ class PCA9685Interface(Node):
             if self.servos[channel] != None:
                 try:
                     # Use a float cast for angle to ensure precision
-                    self.pca.servo[channel].angle = float(cmd.duty_cycle)
+                    self.pca.servo[channel].angle = cmd.duty_cycle
                     self.last_signal[channel] = cmd.duty_cycle
 
                 except ValueError:
@@ -119,8 +120,11 @@ class PCA9685Interface(Node):
                     return
 
             try:
-                self.pca.channels[channel].duty_cycle = cmd.duty_cycle
+                duty_cycle = ceil((cmd.duty_cycle / 100) * 65535)
+
+                self.pca.channels[channel].duty_cycle = duty_cycle
                 self.last_signal[channel] = cmd.duty_cycle
+
             except Exception as e:
                 self.log.error(f"PWM Error: {e}")
 
