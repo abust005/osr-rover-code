@@ -9,8 +9,8 @@ from sensor_msgs.msg import Joy
 from osr_interfaces.msg import CommandPWM, Status
 
 class ColorPwm(Enum):
-    RED = 28
-    GREEN = 50
+    RED = 34
+    GREEN = 56
 
 class StatusLight(Node):
     def __init__(self):
