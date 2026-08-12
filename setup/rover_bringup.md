@@ -195,7 +195,7 @@ The [PCA9685Interface](../ROS/osr_control/osr_control/pca_9685_interface.py) nod
 If you want to create new nodes to use additional PWM channels, they should publish to the `/cmd_pwm` topic using the [CommandPWM](../ROS/osr_interfaces/msg/CommandPWM.msg) message type. If attaching servos (continuous or otherwise), be sure to configure their parameters in [the parameters file](../ROS/osr_bringup/config/pca9685_params.yaml) for the PCA9685. 
 
 > [!NOTE]
-> The CommandPWM message uses duty_cycle as an overloaded field; for servos, it should contain the new servo angle being commanded, and for other generic PWM peripherals, a duty cycle 0-100%
+> The CommandPWM message uses duty_cycle as an overloaded field; for servos, it should contain the new servo angle being commanded, and for other generic PWM peripherals, a duty cycle in the range 0-100%
 
 ## Automatic bringup with launch script
 
