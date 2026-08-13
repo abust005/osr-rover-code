@@ -2,13 +2,11 @@ import rclpy
 from rclpy.node import Node
 import math
 from rclpy.parameter import Parameter
-
-# project libraries
-from adafruit_servokit import ServoKit
+import time
 
 # message imports
 from sensor_msgs.msg import JointState
-from osr_interfaces.msg import CommandCorner, Status
+from osr_interfaces.msg import CommandCorner, CommandPWM
 
 RAD_TO_DEG = 180 / math.pi
 
@@ -20,9 +18,7 @@ class ServoWrapper(Node):
     def __init__(self):
         super().__init__("servo_wrapper")
         self.log = self.get_logger()
-        # self.log.set_level(10)
         self.log.info("Initializing corner servo controllers")
-        self.kit = None
         self.declare_parameters(
             namespace='',
             parameters=[
@@ -30,37 +26,34 @@ class ServoWrapper(Node):
             ]
         )
 
-        # PWM settings from https://www.gobilda.com/2000-series-dual-mode-servo-25-2-torque/
-        self.servo_actuation_range = 300  # [deg]
+        # Ensure only one servo wrapper exists
+        node_names = self.get_node_names()
+        matching_nodes = [n for n in node_names if n == self.get_name()]
+        
+        if len(matching_nodes) > 1:
+            self.log.error(f"Instance of {self.get_name()} already exists! Shutting down.")
+            self.destroy_node()
+            return
+        
+        self.servo_actuation_range = 300
         self.centered_pulse_widths = self.get_parameter('centered_pulse_widths').get_parameter_value().integer_array_value
         assert(len(self.centered_pulse_widths) == 4)
-        self.pulse_width_range = (500, 2500)  # [microsec]
         self.deg_per_sec = 200
         # initial values for position estimate (first element) and goal (second element) for each corner motor in deg
         self.corner_state_goal = [(0, 0)] * 4
 
-        self.connect_pca9685()
-        
+        self.servo_cmd_msg = CommandPWM()
+
         self.enc_pub = self.create_publisher(JointState, "/corner_state", 1)
+        self.servo_pub = self.create_publisher(CommandPWM, "/cmd_pwm", 1)
+
         self.corner_cmd_sub = self.create_subscription(CommandCorner, "/cmd_corner", self.corner_cmd_cb, 1)
         self.enc_pub_timer_period = 0.1  # [s]
         self.servo_direction = -1  # set to 1 if the servos are positive pwm clockwise
         self.enc_pub_timer = self.create_timer(self.enc_pub_timer_period, self.publish_encoder_estimate)
 
-    def connect_pca9685(self):
-        self.log.debug("Creating ServoKit instance")
-        self.kit = ServoKit(channels=16)
-
-        self.log.info("setting servo params")
-        for servo_id in range(4):
-            self.kit.servo[servo_id].actuation_range = self.servo_actuation_range
-            self.kit.servo[servo_id].set_pulse_width_range(*self.pulse_width_range)
-
     def corner_cmd_cb(self, cmd: CommandCorner):
         self.log.debug(f"Received corner command message: {cmd}")
-        if not self.kit:
-            self.log.error("ServoKit not instantiated yet, dropping cmd", throttle_duration_sec=5)
-            return
 
         for ind, corner_name in zip(range(4), self.corner_motors):
             # store goal so we can estimate current angle
@@ -73,8 +66,12 @@ class ServoWrapper(Node):
             self.log.debug(f"motor {corner_name} commanded to {angle}")
             # limit to operating range of servo
             angle = max(min(angle, self.servo_actuation_range), 0)
-            # send to motor
-            self.kit.servo[ind].angle = angle
+
+            # publish PCA9685 command
+            self.servo_cmd_msg.channel = ind
+            self.servo_cmd_msg.duty_cycle = angle
+            self.servo_pub.publish(self.servo_cmd_msg)
+
 
     def publish_encoder_estimate(self):
         """
