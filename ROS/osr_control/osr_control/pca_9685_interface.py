@@ -35,7 +35,6 @@ class PCA9685Interface(Node):
         self.connect_pca9685()
         self.channel_params = self.get_parameters_by_prefix('channel_mapping')
         self.params_to_dict()
-        self.channel_setup()
 
         self.cmd_pca_sub = self.create_subscription(CommandPWM, "/cmd_pwm", self.pca9685_cmd_cb, 10)
 
@@ -44,6 +43,8 @@ class PCA9685Interface(Node):
 
         # Account for 16 possible servos
         self.servos = [None] * 16
+
+        self.channel_setup()
 
     def __del__(self):
         self.pca.deinit()
