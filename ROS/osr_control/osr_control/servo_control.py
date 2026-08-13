@@ -43,7 +43,6 @@ class ServoWrapper(Node):
         self.corner_state_goal = [(0, 0)] * 4
 
         self.servo_cmd_msg = CommandPWM()
-        self.servo_cmd_msg.src = "servo_control"
 
         self.enc_pub = self.create_publisher(JointState, "/corner_state", 1)
         self.servo_pub = self.create_publisher(CommandPWM, "/cmd_pwm", 1)
