@@ -132,7 +132,7 @@ def generate_launch_description():
             respawn=True,
             parameters=[
                 # {"scale_linear.x": 0.4},  # scale to apply to drive speed, in m/s: drive_motor_rpm * 2pi / 60 * wheel radius * slowdown_factor
-                {"scale_linear.x": -0.4},  # scale to apply to drive speed, in m/s: drive_motor_rpm * 2pi / 60 * wheel radius * slowdown_factor
+                {"scale_linear.x": 0.6},  # scale to apply to drive speed, in m/s: drive_motor_rpm * 2pi / 60 * wheel radius * slowdown_factor
                 # {"axis_linear.x": 4},
                 {"axis_linear.x": 2},
                 # {"axis_angular.yaw": 0},  # which joystick axis to use for driving
