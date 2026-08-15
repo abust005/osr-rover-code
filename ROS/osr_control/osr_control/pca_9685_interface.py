@@ -108,7 +108,7 @@ class PCA9685Interface(Node):
 
         if cmd.duty_cycle != last_signal:
 
-            # Handle standard and continuous servos separately from generic PWM
+            # handle standard and continuous servos separately from generic PWM
             if self.servos[channel] is not None:
                 try:
                     target_servo = self.servos[channel]
