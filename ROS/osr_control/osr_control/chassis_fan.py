@@ -7,6 +7,7 @@ import sensors
 
 # message imports
 from osr_interfaces.msg import CommandPWM, Status
+from sensor_msgs.msg import JointState, Joy
 
 class FanSpeed(Enum):
     SHUTDOWN = 0
@@ -14,6 +15,11 @@ class FanSpeed(Enum):
     LOW = 50
     MID = 75
     HIGH = 100
+
+class Override(Enum):
+    DISABLED = 2
+    POSITIVE = 1
+    NEGATIVE = 0
 
 class ChassisFan(Node):
     def __init__(self):
@@ -26,6 +32,7 @@ class ChassisFan(Node):
         self.pwm_cmd.channel = self.fan_channel
         
         self.cmd_pwm_pub = self.create_publisher(CommandPWM, "/cmd_pwm", 1)
+        self.joy_sub = self.create_subscription(Joy, "/joy", self.joy_cb, 1)
 
         sensors.init()
 
@@ -33,12 +40,24 @@ class ChassisFan(Node):
         self.slow_timer = self.create_timer(slow_loop_rate, self.fan_control)
 
         self.last_speed = FanSpeed.SHUTDOWN
+        self.override = Override.DISABLED
 
     def __del__(self):
 
         self.pwm_cmd.duty_cycle = FanSpeed.SHUTDOWN.value
         self.cmd_pwm_pub.publish(self.pwm_cmd)
 
+    def joy_cb(self, msg: Joy):
+
+        override_ch = msg.buttons[7]
+
+        if override_ch < 0:
+            self.override = Override.POSITIVE
+        elif override_ch > 1:
+            self.override = Override.NEGATIVE
+        else:
+            self.override = Override.DISABLED
+        
     def fan_control(self):
 
         curr_temp = 0
@@ -58,6 +77,11 @@ class ChassisFan(Node):
             fan_speed = FanSpeed.MID
         if curr_temp > 70:
             fan_speed = FanSpeed.HIGH
+
+        if self.override == Override.POSITIVE:
+            fan_speed = FanSpeed.HIGH
+        elif self.override == Override.NEGATIVE:
+            fan_speed = FanSpeed.SHUTDOWN
 
         if fan_speed != self.last_speed:
 
