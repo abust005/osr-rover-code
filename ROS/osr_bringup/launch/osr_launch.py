@@ -49,7 +49,6 @@ def generate_launch_description():
             emulate_tty=True,
             respawn=True,
             parameters=[roboclaw_params],
-            arguments=['--ros-args', '--log-file-name', 'roboclaw_wrapper']
         )
     )
 
@@ -62,7 +61,6 @@ def generate_launch_description():
             emulate_tty=True,
             respawn=True,
             parameters=[crsf_params],
-            arguments=['--ros-args', '--log-file-name', 'crsf_rx']
         )
     )
 
@@ -75,7 +73,6 @@ def generate_launch_description():
             emulate_tty=True,
             respawn=True,
             parameters=[rc_params],
-            arguments=['--ros-args', '--log-file-name', 'rc_joy']
 
         )
     )
@@ -91,7 +88,6 @@ def generate_launch_description():
         emulate_tty=True,
         respawn=True,
         parameters=[pca_params],
-        arguments=['--ros-args', '--log-file-name', 'pca9685_interface']
 
         
     )
@@ -104,7 +100,6 @@ def generate_launch_description():
         emulate_tty=True,
         respawn=True,
         parameters=[{'centered_pulse_widths': [150, 152, 153, 150]}],
-        arguments=['--ros-args', '--log-file-name', 'servo_control']
 
     )
 
@@ -129,7 +124,6 @@ def generate_launch_description():
             parameters=[osr_params,
                         {'enable_odometry': LaunchConfiguration('enable_odometry'),
                          'publish_transform': LaunchConfiguration('publish_transform')}],
-        arguments=['--ros-args', '--log-file-name', 'rover']
 
         )
     )
@@ -162,7 +156,6 @@ def generate_launch_description():
             remappings=[
                 ('/cmd_vel', '/cmd_vel_intuitive')
             ],
-        arguments=['--ros-args', '--log-file-name', 'teleop_twist_joy']
 
         )
     )
@@ -191,7 +184,6 @@ def generate_launch_description():
                 {"publish_rate": 1.0},
                 {"sensor_address": "0x41"},
             ],
-            arguments=['--ros-args', '--log-file-name', 'ina260']
         
         )
     )
@@ -204,7 +196,6 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             respawn=True,
-            arguments=['--ros-args', '--log-file-name', 'status_light']
          )
      )
 
@@ -216,7 +207,6 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             respawn=True,
-            arguments=['--ros-args', '--log-file-name', 'chassis_fan']
 
         )
     )
