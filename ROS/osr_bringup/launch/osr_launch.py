@@ -60,7 +60,8 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             respawn=True,
-            parameters=[crsf_params]
+            parameters=[crsf_params],
+            arguments=['--ros-args', '--log-file-name', 'crsf_rx']
         )
     )
 
@@ -72,7 +73,9 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             respawn=True,
-            parameters=[rc_params]
+            parameters=[rc_params],
+            arguments=['--ros-args', '--log-file-name', 'rc_joy']
+
         )
     )
     ld.add_action(
@@ -86,7 +89,10 @@ def generate_launch_description():
         output='screen',
         emulate_tty=True,
         respawn=True,
-        parameters=[pca_params]
+        parameters=[pca_params],
+        arguments=['--ros-args', '--log-file-name', 'pca9685']
+
+        
     )
 
     servo_control_node = Node(
@@ -200,6 +206,8 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             respawn=True,
+            arguments=['--ros-args', '--log-file-name', 'chassis_fan']
+
         )
     )
 
