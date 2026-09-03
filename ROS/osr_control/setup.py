@@ -28,6 +28,7 @@ setup(
             'roboclaw_wrapper = osr_control.roboclaw_wrapper:main',
             'pca9685_interface = osr_control.pca_9685_interface:main',
             'servo_control = osr_control.servo_control:main',
+            'pan_tilt_control = osr_control.pan_tilt_control:main',
             'status_light = osr_control.status_light:main',
             'chassis_fan = osr_control.chassis_fan:main',
             'ina260 = osr_control.ina_260_pub:main',

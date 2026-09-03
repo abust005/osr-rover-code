@@ -23,6 +23,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/CommandCorner.msg"
     "msg/CRSFChannels.msg"
     "msg/CommandPWM.msg"
+    "msg/CommandMast.msg"
 )
 
 if(BUILD_TESTING)
