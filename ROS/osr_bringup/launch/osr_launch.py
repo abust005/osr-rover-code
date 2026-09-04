@@ -110,7 +110,7 @@ def generate_launch_description():
         output='screen',
         emulate_tty=True,
         respawn=True,
-        parameters=[{'centered_pulse_widths': [210, 130]}],
+        parameters=[{'centered_pulse_widths': [200, 130]}],
     )
 
     ld.add_action(pca_9685_interface_node)
