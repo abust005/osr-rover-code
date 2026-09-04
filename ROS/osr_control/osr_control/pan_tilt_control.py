@@ -63,8 +63,7 @@ class PanTiltControl(Node):
           self.servo_pub.publish(self.servo_cmd_msg)
 
     def mast_cmd_cb(self, cmd: CommandMast):
-        self.log.info(f"Received mast command message: {cmd}")
-
+        self.log.debug(f"Received mast command message: {cmd}")
 
         for ind, channel, motor_name in zip(range(2), self.channel, self.motors):
             # store goal so we can estimate current angle
@@ -74,7 +73,7 @@ class PanTiltControl(Node):
             # offset to coordinate frame where x points to the middle of the rover, z down
             # and apply middle of actuation range offset, taking into account if servo is positive ccw or cw
             angle = self.centered_pulse_widths[ind] + self.servo_direction * angle
-            self.log.info(f"motor {motor_name} commanded to {angle}")
+            self.log.debug(f"motor {motor_name} commanded to {angle}")
             # limit to operating range of servo
             angle = max(min(angle, self.servo_actuation_range), 0)
 
