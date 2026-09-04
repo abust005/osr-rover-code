@@ -44,8 +44,8 @@ class JoyButtonSubscriber(Node):
 
         # Construct CommandMast
         mast_msg = CommandMast()
-        mast_msg.azimuth = msg.channels[10] * 1.57
-        mast_msg.elevation = msg.channels[11] * 1.57
+        mast_msg.azimuth = msg.axes[10] * 1.57
+        mast_msg.elevation = msg.axes[11] * 1.57
 
         self.mast_pub.publish(msg)
 
