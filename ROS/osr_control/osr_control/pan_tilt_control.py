@@ -53,6 +53,15 @@ class PanTiltControl(Node):
         self.servo_direction = -1  # set to 1 if the servos are positive pwm clockwise
         # self.enc_pub_timer = self.create_timer(self.enc_pub_timer_period, self.publish_encoder_estimate)
 
+    def setup_mast(self):
+
+      for ind, channel in zip(range(2), self.channel):
+          angle = self.centered_pulse_widths[ind]
+
+          self.servo_cmd_msg.channel = channel
+          self.servo_cmd_msg.duty_cycle = float(angle)
+          self.servo_pub.publish(self.servo_cmd_msg)
+
     def mast_cmd_cb(self, cmd: CommandMast):
         self.log.info(f"Received mast command message: {cmd}")
 
