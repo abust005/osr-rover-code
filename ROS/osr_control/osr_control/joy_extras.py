@@ -47,7 +47,7 @@ class JoyButtonSubscriber(Node):
         mast_msg.azimuth = msg.axes[10] * 1.57
         mast_msg.elevation = msg.axes[11] * 1.57
 
-        self.mast_pub.publish(msg)
+        self.mast_pub.publish(mast_msg)
 
         # button_value = msg.buttons[self.duty_button_index]
         # current_time = self.get_clock().now()
