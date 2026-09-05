@@ -82,6 +82,14 @@ def generate_launch_description():
     'robot_description': Command(['xacro ', urdf_model])}],
     arguments=[default_urdf_model_path])
 
+  robot_localization_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[os.path.join(pkg_share, 'config/ekf.yaml'), {'use_sim_time': True}]
+    )
+
   # Launch RViz
   start_rviz_cmd = Node(
     condition=IfCondition(use_rviz),
@@ -106,6 +114,7 @@ def generate_launch_description():
   ld.add_action(start_joint_state_publisher_cmd)
   ld.add_action(start_joint_state_publisher_gui_node)
   ld.add_action(start_robot_state_publisher_cmd)
+  ld.add_action(robot_localization_node)
   ld.add_action(start_rviz_cmd)
 
   return ld

@@ -33,6 +33,7 @@ install(FILES
 
 install(PROGRAMS
   scripts/gazebo_command_adapter.py
+  scripts/joint_state_adapter.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
