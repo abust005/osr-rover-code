@@ -9,12 +9,6 @@ from osr_interfaces.msg import CommandDrive, CRSFChannels, Status
 
 import numpy as np
 
-import rclpy
-from rclpy.node import Node
-from sensor_msgs.msg import Joy
-from osr_interfaces.msg import CRSFChannels
-
-
 class RCJoyNode(Node):
     def __init__(self):
         super().__init__('rc_joy')
