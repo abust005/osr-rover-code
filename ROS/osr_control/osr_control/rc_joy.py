@@ -1,13 +1,8 @@
 import rclpy
 from rclpy.parameter import Parameter
 from rclpy.node import Node
-from rcl_interfaces.msg import SetParametersResult
-
-from geometry_msgs.msg import Twist, TwistWithCovariance
-from sensor_msgs.msg import JointState, Joy
-from osr_interfaces.msg import CommandDrive, CRSFChannels, Status
-
-import numpy as np
+from sensor_msgs.msg import Joy
+from osr_interfaces.msg import CRSFChannels
 
 class RCJoyNode(Node):
     def __init__(self):
