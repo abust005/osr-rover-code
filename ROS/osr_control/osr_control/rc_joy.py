@@ -39,7 +39,12 @@ class RCJoyNode(Node):
         self.ch_max = self.get_parameter('ch_max').get_parameter_value().integer_array_value
         self.ch_enable = self.get_parameter('ch_enable').get_parameter_value().integer_array_value
         self.ch_type = self.get_parameter('ch_type').get_parameter_value().integer_array_value
-        self.deadzone = self.get_parameter('deadzone').get_parameter_value().double_value
+        self.global_deadzone = self.get_parameter('global_deadzone').get_parameter_value().double_value
+        self.ch_deadzones = self.get_parameter('ch_deadzones').get_parameter_value().double_array_value
+
+        for i, d in enumerate(self.ch_deadzones):
+            if d < 0:
+                self.ch_deadzones[i] = self.global_deadzone
 
         # --- Publishers and Subscribers ---
         self.joy_pub = self.create_publisher(Joy, '/joy', 1)
@@ -54,6 +59,9 @@ class RCJoyNode(Node):
 
     def _normalize_axis(self, ch, raw_val: int) -> float:
         """Converts raw PWM/CRSF value (e.g. 988-2012 us) to a [-1.0, 1.0] float range."""
+
+        deadzone = self.ch_deadzones[ch]
+
         if raw_val >= self.ch_mid[ch]:
             norm = (raw_val - self.ch_mid[ch]) / float(self.ch_max[ch] - self.ch_mid[ch])
         else:
@@ -63,7 +71,7 @@ class RCJoyNode(Node):
         norm = max(-1.0, min(1.0, norm))
 
         # Deadzone filter
-        if abs(norm) < self.deadzone:
+        if abs(norm) < deadzone:
             return 0.0
 
         return norm
