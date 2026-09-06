@@ -30,7 +30,8 @@ class RCJoyNode(Node):
         self.declare_parameter('frame_id', 'rc_transmitter')
 
         # Deadzone threshold around center (in normalized range 0.0 - 1.0)
-        self.declare_parameter('deadzone', 0.02)
+        self.declare_parameter('global_deadzone', 0.02)
+        self.declare_parameter('ch_deadzones', [-1.0] * 16)
 
         # --- Read Parameters ---
         self.frame_id = self.get_parameter('frame_id').get_parameter_value().string_value
