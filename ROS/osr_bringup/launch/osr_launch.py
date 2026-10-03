@@ -54,8 +54,8 @@ def generate_launch_description():
 
     ld.add_action(
         Node(
-            package='osr_control',
-            executable='crsf',
+            package='osr_cpp',
+            executable='crsf_node',
             name='crsf_rx',
             output='screen',
             emulate_tty=True,
