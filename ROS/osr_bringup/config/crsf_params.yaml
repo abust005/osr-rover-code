@@ -1,4 +1,4 @@
 crsf_rx:
   ros__parameters:
-    serial_device: "/dev/ttyUSB0"
+    serial_device: "/dev/ttyACM0"
     baud: 420000
