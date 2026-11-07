@@ -70,9 +70,10 @@ class JoyButtonSubscriber(Node):
         # scale between 0.75 rad/s and 2.5 rad/s
         new_ang_scale = 0.75 + (((new_ang_scale + 1) * 1.75)/ 2)
 
-        # Clamp range
-        self.last_x_scale = max(1.0, min(4.0, new_x_scale))
-        self.last_ang_scale = max(0.750, min(2.50, new_ang_scale)) * -1.0
+        # Clamp range and only allow scale updates when control disabled
+        if not(msg.buttons[4]):
+            self.last_x_scale = max(1.0, min(4.0, new_x_scale))
+            self.last_ang_scale = max(0.750, min(2.50, new_ang_scale)) * -1.0
 
     def update_lin_ang_vel(self):
         req = SetParameters.Request()
