@@ -32,6 +32,7 @@ setup(
             'status_light = osr_control.status_light:main',
             'chassis_fan = osr_control.chassis_fan:main',
             'ina260 = osr_control.ina_260_pub:main',
+            'bno055 = osr_control.bno_055_pub:main',
             'rc_joy = osr_control.rc_joy:main',
             'crsf = osr_control.crsf_node:main',
             'joy_extras = osr_control.joy_extras:main'
