@@ -35,7 +35,7 @@ class BNO055Node(Node):
         self.bno055.offsets_accelerometer = tuple(self.calib_data["Offsets_Accelerometer"])
         self.bno055.offsets_gyroscope = tuple(self.calib_data["Offsets_Gyroscope"])
 
-        self.angular_accel = 0
+        self.angular_accel = np.array([0,0,0])
         self.last_angular_vel = np.array(self.bno055.gyro)
 
         # Create publisher
@@ -82,8 +82,8 @@ class BNO055Node(Node):
         accel_msg.accel.linear.z = curr_accel[2]
 
         accel_msg.accel.angular.x = self.angular_accel[0]
-        accel_msg.accel.angular.y = self.angular_accel[0]
-        accel_msg.accel.angular.z = self.angular_accel[0]
+        accel_msg.accel.angular.y = self.angular_accel[1]
+        accel_msg.accel.angular.z = self.angular_accel[2]
 
         # Publish Accel message
         self.accel_pub.publish(accel_msg)
