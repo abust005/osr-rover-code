@@ -19,10 +19,10 @@ class JoyButtonSubscriber(Node):
         self.last_received_time = None        
         self.cb_group = ReentrantCallbackGroup()
 
-        self.teleop_joy_client = self.create_client(SetParameters, '/teleop_twist_joy_node/set_parameters', 
-                                                                 callback_group=self.cb_group)
-        while not self.teleop_joy_client.wait_for_service(timeout_sec=5.0):
-            self.log.info('Service /teleop_twist_joy_node/set_parameters not available, waiting again...', skip_first=True)
+        # self.teleop_joy_client = self.create_client(SetParameters, '/teleop_twist_joy_node/set_parameters', 
+        #                                                          callback_group=self.cb_group)
+        # while not self.teleop_joy_client.wait_for_service(timeout_sec=5.0):
+        #     self.log.info('Service /teleop_twist_joy_node/set_parameters not available, waiting again...', skip_first=True)
         
         self.subscription = self.create_subscription(
             Joy,
@@ -37,7 +37,7 @@ class JoyButtonSubscriber(Node):
         )
 
         self.control_update_rate = 0.5 # seconds, 20Hz
-        self.client_timer = self.create_timer(self.control_update_rate, self.update_lin_ang_vel)
+        # self.client_timer = self.create_timer(self.control_update_rate, self.update_lin_ang_vel)
 
         self.last_x_scale = 1.0
         self.last_ang_scale = -0.75
