@@ -165,20 +165,20 @@ def generate_launch_description():
 
         )
     )
-    ld.add_action(
-        Node(
-            package='joy',
-            executable='joy_node',
-            name='joy',
-            output='screen',
-            emulate_tty=True,
-            respawn=True,
-            parameters=[
-                {"autorepeat_rate": 5.0},
-                {"device_id": 0},  # This might be different on your computer. Run `ls -l /dev/input/event*`. If you have event1, put 1.
-            ]        
-        )
-    )
+    # ld.add_action(
+    #     Node(
+    #         package='joy',
+    #         executable='joy_node',
+    #         name='joy',
+    #         output='screen',
+    #         emulate_tty=True,
+    #         respawn=True,
+    #         parameters=[
+    #             {"autorepeat_rate": 1.0},
+    #             {"device_id": 0},  # This might be different on your computer. Run `ls -l /dev/input/event*`. If you have event1, put 1.
+    #         ]        
+    #     )
+    # )
     ld.add_action(
         Node(
             package='osr_control',

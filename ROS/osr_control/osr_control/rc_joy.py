@@ -53,7 +53,7 @@ class RCJoyNode(Node):
             CRSFChannels,
             '/crsf',
             self.crsf_callback,
-            10
+            2
         )
 
         self.get_logger().info(f"RC Joy node listening on /crsf and publishing to /joy")

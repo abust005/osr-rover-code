@@ -2,10 +2,11 @@ import sys
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
-from rclpy.parameter import Parameter
-from rcl_interfaces.srv import SetParameters
 from rclpy.callback_groups import ReentrantCallbackGroup
 from osr_interfaces.msg import CommandMast
+
+from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
+from rcl_interfaces.srv import SetParameters
 
 class JoyButtonSubscriber(Node):
     """For custom functionality that the joy to twist publisher node can't handle"""
@@ -17,22 +18,29 @@ class JoyButtonSubscriber(Node):
         self.last_duty_mode_value = False
         self.last_received_time = None        
         self.cb_group = ReentrantCallbackGroup()
-        # self.roboclaw_node_set_param_client = self.create_client(SetParameters, '/roboclaw_wrapper/set_parameters', 
-        #                                                          callback_group=self.cb_group)
-        # while not self.roboclaw_node_set_param_client.wait_for_service(timeout_sec=5.0):
-        #     self.log.info('Service /roboclaw_wrapper/set_parameters not available, waiting again...', skip_first=True)
+
+        self.teleop_joy_client = self.create_client(SetParameters, '/teleop_twist_joy_node/set_parameters', 
+                                                                 callback_group=self.cb_group)
+        while not self.teleop_joy_client.wait_for_service(timeout_sec=5.0):
+            self.log.info('Service /teleop_twist_joy_node/set_parameters not available, waiting again...', skip_first=True)
         
         self.subscription = self.create_subscription(
             Joy,
             "/joy",
             self.joy_callback,
-            10)
+            5)
 
         self.mast_pub = self.create_publisher(
             CommandMast,
             "/cmd_mast",
             1
         )
+
+        self.control_update_rate = 0.5 # seconds, 20Hz
+        self.client_timer = self.create_timer(self.control_update_rate, self.update_lin_ang_vel)
+
+        self.last_x_scale = 1.0
+        self.last_ang_scale = -0.75
 
         self.log.info("Initialized JoyButtonSubscriber.")
 
@@ -49,29 +57,41 @@ class JoyButtonSubscriber(Node):
 
         self.mast_pub.publish(mast_msg)
 
-        # button_value = msg.buttons[self.duty_button_index]
-        # current_time = self.get_clock().now()
-        # # only flip the mode if we haven't received a button press in over a second
-        # if button_value and (self.last_received_time is None or (current_time - self.last_received_time).nanoseconds > 1e9):
-        #     # change the duty mode to the opposite of what it was
-        #     param = Parameter(name="duty_mode", value=not self.last_duty_mode_value).to_parameter_msg()
-        #     self.log.info(f"Turning duty mode {'off' if self.last_duty_mode_value else 'on'}")
-        #     self.last_duty_mode_value = not self.last_duty_mode_value
-        #     await self.set_parameter_value_on_other_node(self.roboclaw_node_set_param_client, param)
-        #     self.last_received_time = current_time
+        # Channels 12-13 for vel. adj.
+        new_x_scale = msg.axes[12]
+        new_ang_scale = msg.axes[13]
 
-    # async def set_parameter_value_on_other_node(self, node_set_param_client, param):
-    #     request = SetParameters.Request()
-    #     request.parameters.append(param)
-    #     future = node_set_param_client.call_async(request)
-    #     try:
-    #         result = await future
-    #     except Exception as e:
-    #         self.log.warning(f"Failed to call service with parameter {param.name}: {e}")
-    #     else:
-    #         res = result.results[0]
-    #         if not res.successful:
-    #             self.log.warning(f"Service call with parameter {param.name} unsuccessful: {res.reason}")
+        # scaling [a,b]
+        # x' = a + ((x-min(x)) * (b-a))/ (max(x) - min(x))
+
+        # scale between 1 m/s and 4 m/s
+        new_x_scale = 1 + 3 * ((new_x_scale + 1) / 2)
+
+        # scale between 0.75 rad/s and 2.5 rad/s
+        new_ang_scale = 0.75 + (((new_ang_scale + 1) * 1.75)/ 2)
+
+        # Clamp range
+        self.last_x_scale = max(1.0, min(4.0, new_x_scale))
+        self.last_ang_scale = max(0.750, min(2.50, new_ang_scale)) * -1.0
+
+    def update_lin_ang_vel(self):
+        req = SetParameters.Request()
+        
+        # Define the parameter change
+        param = Parameter()
+        param.name = 'scale_linear.x'
+        param.value.type = ParameterType.PARAMETER_DOUBLE
+        param.value.double_value = float(self.last_x_scale)
+        
+        req.parameters.append(param)
+
+        param = Parameter()
+        param.name = 'scale_angular.yaw'
+        param.value.type = ParameterType.PARAMETER_DOUBLE
+        param.value.double_value = float(self.last_ang_scale)
+        
+        self.teleop_joy_client.call_async(req)
+        self.get_logger().info(f'Requested scale_linear.x change to {self.last_x_scale}, scale_angular.yaw to {self.last_ang_scale}')
 
 def main(args=None):
     rclpy.init(args=args)
