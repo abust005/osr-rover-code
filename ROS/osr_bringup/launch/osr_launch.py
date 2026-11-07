@@ -181,19 +181,19 @@ def generate_launch_description():
         )
     )
 
-    ld.add_action(
-        Node(
-            package='osr_control',
-            executable='bno055',
-            name='bno055_node',
-            output='screen',
-            emulate_tty=True,
-            parameters=[
-                {"publish_rate": 2.0},
-            ],
+    # ld.add_action(
+    #     Node(
+    #         package='osr_control',
+    #         executable='bno055',
+    #         name='bno055_node',
+    #         output='screen',
+    #         emulate_tty=True,
+    #         parameters=[
+    #             {"publish_rate": 2.0},
+    #         ],
         
-        )
-    )
+    #     )
+    # )
 
     ld.add_action(
         Node(
